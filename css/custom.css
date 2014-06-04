@@ -8,8 +8,8 @@
 
 #splash {
   background-color: black;
-  z-index: 2000;
-  position:fixed;
+  position: absolute;
+  z-index: 10001;
   height: 100%;
   width: 100%;
   left: 0;
