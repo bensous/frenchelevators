@@ -1,5 +1,5 @@
 $(document).ready(function() {
   $("#splash").click(function() {
-   $("#splash").fadeOut(300);
+   $("#splash").fadeOut(500);
   });
 });
