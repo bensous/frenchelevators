@@ -41,6 +41,10 @@ body {
   z-index: -1000;
 }
 
+#big-video-vid {
+  top:0 !important;
+}
+
 .navbar {
   background-color: rgba(0,0,0,0.80);
 }
