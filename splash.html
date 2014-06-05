@@ -1,0 +1,86 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <title>FRENCH ELEVATORS productions</title>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+
+    <link rel='stylesheet' type='text/css' href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+    <link rel='stylesheet' type='text/css' href="./bower_components/BigVideo.js/css/bigvideo.css">
+    <!-- <link rel="stylesheet" type='text/css' href="css/custom.css" /> -->
+
+    <!--[if lte IE 8]><script src="css/ie/html5shiv.js"></script><![endif]-->
+    <!--[if lte IE 8]><link rel="stylesheet" href="css/ie/v8.css" /><![endif]-->
+
+    <link rel='prefetch' type='video/webm' href="./videos/fecine-elevator-test.webm">
+    <style type="text/css">
+      body {
+        background-color: black;
+      }
+      #splash {
+        z-index: 10001;
+        height: 100%;
+        width: 100%;
+        left: 0;
+        top: 0;
+      }
+      .big-logo {
+        max-width: 469px;
+        width: 100%;
+      }
+      #big-video-wrap {
+        z-index: -1000;
+      }
+    </style>
+    
+    <script src="./bower_components/require.js"></script>
+    <script type="text/javascript">
+      require.config({
+          paths: {
+              "BigVideo": "bower_components/BigVideo.js/lib/bigvideo",
+              "jquery": "bower_components/jquery/dist/jquery.min",
+              "jquery-ui": "bower_components/jquery-ui/ui/jquery-ui",
+              "videojs": "bower_components/video.js/dist/video-js/video",
+              "imagesloaded": "bower_components/imagesloaded/imagesloaded",
+              "eventEmitter/EventEmitter": "bower_components/eventEmitter/EventEmitter",
+              "eventie/eventie": "bower_components/eventie/eventie",
+              "modernizr": "bower_components/modernizr/modernizr"
+          },
+          shim: {
+              "videojs": {exports: 'videojs'}
+          }
+      });
+      require(['BigVideo'], function(bigvideo) {
+          $(function() {
+              var BV = new $.BigVideo({useFlashForFirefox:false});
+              BV.init();
+              BV.show('./videos/fecine-elevator-test.mp4',{altSource:'./videos/fecine-elevator-test.webm',ambient:true});
+          });
+      });
+    </script>
+
+  </head>
+
+  <body>
+
+    <div class="main">
+      <div class="container-fluid">
+        <!-- Splash -->
+        <div id="splash" class="row">
+          <div class="text-center">
+            <div class=""></div>
+            <img id="big-logo" style="" src="./images/felogowebsite.png" alt=""><br>
+            <a style="" href="./francais.html">FRANÇAIS</a>
+            <a style="" href="./english.html">ENGLISH</a>
+          </div>
+
+          <!-- <video id="player" poster="./videos/fecine-elevator-test.jpg" loop="loop" muted="muted" autoplay="autoplay" preload="auto">
+            <source type='video/webm' src="./videos/fecine-elevator-test.webm">
+            <source type='video/mp4' src="./videos/fecine-elevator-test.mp4">
+          </video> -->
+
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>
