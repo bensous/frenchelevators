@@ -13,3 +13,16 @@ require.config({
         "videojs": {exports: 'videojs'}
     }
 });
+
+require(['BigVideo'], function(bigvideo) {
+  $(function() {
+      var BV = new $.BigVideo({useFlashForFirefox:false});
+      BV.init();
+      // BV.show('./videos/fecine-elevator-nothingloop.webmhd.webm',{altSource:'./videos/fecine-elevator-nothingloop.mp4',ambient:true});
+      BV.show('./videos/fecine-elevator-nothingloop.webmhd.webm',{ambient:true});
+  });
+});
+
+function do_nothing(){
+
+}

@@ -14,38 +14,12 @@
     
     <script src="./bower_components/require.js"></script>
     <script src="./js/custom.js"></script>
-    <script type="text/javascript">
-      require(['BigVideo'], function(bigvideo) {
-        $(function() {
-          var BV = new $.BigVideo({useFlashForFirefox:false});
 
-          BV.init();
-          // BV.show('./videos/fecine-elevator-nothingloop.webmhd.webm',{altSource:'./videos/fecine-elevator-nothingloop.mp4',ambient:true});
-          BV.show('./videos/fecine-elevator-nothingloop.webmhd.webm',{ambient:true});
-
-          // Playlist button click starts video, enables autohiding
-          $('.bv-ctrl').on('click', function(e) {
-            e.preventDefault();
-            BV.show($(this).attr('href'),{ambient:false});
-            $('#splash').fadeOut(400);
-            $('#navbar').slideDown(400);
-          });
-        });
-      });
-    </script>
   </head>
 
   <body>
 
     <div class="main">
-
-      <nav id="navbar" class="navbar navbar-default navbar-fixed-top navbar-inverse" role="navigation" style="">
-        <div class="container-fluid">
-          <div class="navbar-header">
-            <a class="navbar-brand" href="#"><img id="small-logo" style="height:3rem;" src="./images/felogowebsite.png" alt=""></a>
-          </div>
-        </div>
-      </nav>
 
       <div class="container-fluid">
         <!-- Splash -->
@@ -54,8 +28,8 @@
           <div class="text-center">
             <div id="centerer" class=""></div>
             <img id="big-logo" style="" src="./images/felogowebsite.png" alt=""><br>
-            <a id="btn-fr" class="bv-ctrl" href='./videos/fecine-elevator-marcotonothingtrans.webmhd.webm'>FRANÇAIS</a>
-            <a id="btn-en" style="bv-ctrl" href='./videos/fecine-elevator-marcotonothingtrans.webmhd.webm'>ENGLISH</a>
+            <a id="btn-fr" style="" href="./francais.html">FRANÇAIS</a>
+            <a id="btn-en" style="" href="./english.html">ENGLISH</a>
           </div>
 
         </div>
