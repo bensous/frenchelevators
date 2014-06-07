@@ -20,8 +20,31 @@ require(['BigVideo'], function(bigvideo) {
       BV.init();
       // BV.show('./videos/fecine-elevator-nothingloop.webmhd.webm',{altSource:'./videos/fecine-elevator-nothingloop.mp4',ambient:true});
       BV.show('./videos/fecine-elevator-nothingloop.webmhd.webm',{ambient:true});
+
+      // Hides logo, shows navbar
+      $('.bv-ctrl').on('click', function(e) {
+        e.preventDefault();
+        BV.show('./videos/fecine-elevator-marcotonothingtrans.webmhd.webm',{ambient:false});
+        $('#splash').fadeOut(400);
+        $('#navbar').animate({
+          top: 0
+        }, {
+          queue: false,
+          duration: 400
+        });
+      });
   });
 });
+
+function show_navbar() {
+
+    autoHidingNavbar.element.removeClass('navbar-hidden').animate({
+      top: 0
+    }, {
+      queue: false,
+      duration: 400
+    });
+  }
 
 function do_nothing(){
 
