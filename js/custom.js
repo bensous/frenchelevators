@@ -22,29 +22,28 @@ require(['BigVideo'], function(bigvideo) {
       BV.show('./videos/fecine-elevator-nothingloop.webmhd.webm',{ambient:true});
 
       // Hides logo, shows navbar
-      $('.bv-ctrl').on('click', function(e) {
-        e.preventDefault();
-        BV.show('./videos/fecine-elevator-marcotonothingtrans.webmhd.webm',{ambient:false});
-        $('#splash').fadeOut(400);
-        $('#navbar').animate({
-          top: 0
-        }, {
-          queue: false,
-          duration: 400
+      $( document ).ready(function() {
+
+        $('.bv-ctrl').on('click', function(e) {
+
+          e.preventDefault();
+
+          
+
+          $('#splash').fadeOut(1000, function () {
+            BV.show('./videos/fecine-elevator-marcotonothingtrans.webmhd.webm',{ambient:false});
+            console.log('awesomeee');
+            $('.navbar-fixed-top').show().animate({
+              top: 0
+            }, 800, function() {
+              // Animation complete.
+            });
+          });
         });
+
       });
   });
 });
-
-function show_navbar() {
-
-    autoHidingNavbar.element.removeClass('navbar-hidden').animate({
-      top: 0
-    }, {
-      queue: false,
-      duration: 400
-    });
-  }
 
 function do_nothing(){
 
