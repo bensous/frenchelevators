@@ -55,6 +55,13 @@ body {
   margin: 2rem;
 }
 
+/* OVERIDING BOOTSTRAP DEFAULT NAVBAR */
+
+.navbar-brand {
+  padding: 0;
+  padding-left: 15px;
+}
+
 .navbar-fixed-top {
   background-color: rgba(0,0,0,0.80);
   height: 7rem;
@@ -64,7 +71,7 @@ body {
   top: -70px;
 }
 
-.navbar-brand {
-  padding: 0;
-  padding-left: 15px;
+.navbar-nav>li>a {
+  font-size: 1.8rem;
+  padding: 2.5rem 1.8rem;
 }

@@ -28,16 +28,14 @@ require(['BigVideo'], function(bigvideo) {
 
           e.preventDefault();
 
-          
-
+          // Fades out the logo then plays the next video with the navbar sliding from top.
           $('#splash').fadeOut(1000, function () {
+
             BV.show('./videos/fecine-elevator-marcotonothingtrans.webmhd.webm',{ambient:false});
-            console.log('awesomeee');
+            
             $('.navbar-fixed-top').show().animate({
               top: 0
-            }, 800, function() {
-              // Animation complete.
-            });
+            }, 800);
           });
         });
 
