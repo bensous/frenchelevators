@@ -38,6 +38,10 @@ body {
   width: 100%;
 }
 
+#small-logo {
+  height:7rem;
+}
+
 #big-video-wrap {
   z-index: -1000;
 }
@@ -58,5 +62,10 @@ body {
 }
 
 .navbar-hidden {
-  top: -7rem;
+  /*top: -7rem;*/
+}
+
+.navbar-brand {
+  padding: 0;
+  padding-left: 15px;
 }
