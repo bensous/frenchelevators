@@ -46,6 +46,11 @@ body {
   top:0 !important;
 }
 
+.big-btn {
+  font-size: 7rem;
+  margin: 2rem;
+}
+
 .navbar-fixed-top {
   background-color: rgba(0,0,0,0.80);
   height: 7rem;
