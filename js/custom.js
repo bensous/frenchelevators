@@ -28,15 +28,34 @@ require(['BigVideo'], function(bigvideo) {
 
           e.preventDefault();
 
-          // Fades out the logo then plays the next video with the navbar sliding from top.
-          $('#splash').fadeOut(1000, function () {
+          switch (this.id) {
 
-            BV.show('./videos/fecine-elevator-marcotonothingtrans.webmhd.webm',{ambient:false});
-            
-            $('.navbar-fixed-top').show().animate({
-              top: 0
-            }, 800);
-          });
+            case  'btn-fr':
+
+              // Fades out the logo then plays the next video with the navbar sliding from top.
+              $('#splash').fadeOut(1000, function () {
+
+                BV.show('./videos/fecine-elevator-marcotonothingtrans.webmhd.webm',{ambient:false});
+                
+                $('#navbar-fr').show().animate({top: 0}, 800);
+              });
+              break;
+
+            case  'btn-en':
+
+              // Fades out the logo then plays the next video with the navbar sliding from top.
+              $('#splash').fadeOut(1000, function () {
+
+                BV.show('./videos/fecine-elevator-marcotonothingtrans.webmhd.webm',{ambient:false});
+                
+                $('#navbar-en').show().animate({top: 0}, 800);
+              });
+              break;
+
+            default:
+
+              console.log('no action for ' + this.id);
+          };
         });
 
       });
