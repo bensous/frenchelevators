@@ -30,31 +30,72 @@ require(['BigVideo'], function(bigvideo) {
 
           switch (this.id) {
 
-            case  'btn-fr':
+            case 'btn-fr':
 
-              // Fades out the logo then plays the next video with the navbar sliding from top.
+              // Fades out the logo then plays the next video with the french navbar sliding from top.
               $('#splash').fadeOut(1000, function () {
-
-                BV.show('./videos/fecine-elevator-marcotonothingtrans.webmhd.webm',{ambient:false});
-                
                 $('#navbar-fr').show().animate({top: 0}, 800);
               });
               break;
 
-            case  'btn-en':
+            case 'btn-en':
 
-              // Fades out the logo then plays the next video with the navbar sliding from top.
+              // Fades out the logo then plays the next video with the english navbar sliding from top.
               $('#splash').fadeOut(1000, function () {
-
-                BV.show('./videos/fecine-elevator-marcotonothingtrans.webmhd.webm',{ambient:false});
-                
                 $('#navbar-en').show().animate({top: 0}, 800);
               });
               break;
 
-            default:
+            case 'nav-team':
 
-              console.log('no action for ' + this.id);
+              // Goes back to the initial loop, and display the team page.
+              if (!$('#team-page').is(":visible")) {
+                $('.page').fadeOut(600, function () {
+
+                    console.log('Showing team NOW !');
+                    $('#team-page').show();
+
+                });
+              };
+              break;
+
+            case 'nav-about':
+
+              // Goes back to the initial loop, and display the contact form.
+              $('.page').fadeOut(600, function () {
+                BV.getPlayer().on("ended", function(){
+                  BV.show('./videos/fecine-elevator-nothingloop.webmhd.webm',{ambient:false});
+                });
+              });
+              break;
+
+            case 'btn-benjamin':
+
+              BV.show('./videos/fecine-elevator-nothing2ben.webmhd.webm',{ambient:false});
+              BV.getPlayer().on("ended", function(){
+                BV.show('./videos/fecine-elevator-benloop.webmhd.webm',{ambient:false});
+              });
+              break;
+
+            case 'btn-marc-antoine':
+
+              BV.show('./videos/fecine-elevator-nothing2marco.webmhd.webm',{ambient:false});
+              BV.getPlayer().on("ended", function(){
+                BV.show('./videos/fecine-elevator-marcoloop.webmhd.webm',{ambient:false});
+              });
+              break;
+
+            case 'btn-team-back':
+
+              BV.getPlayer().on("ended", function(){
+                BV.show('./videos/fecine-elevator-nothingloop.webmhd.webm',{ambient:false});
+              });
+              break;
+
+            default:
+              $('.page').fadeOut(600, function () {});
+              console.log('no action set for ' + this.id);
+              $('.page').fadeOut(600, function () {});
           };
         });
 
