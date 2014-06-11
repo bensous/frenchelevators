@@ -7,7 +7,8 @@ require.config({
         "imagesloaded": "bower_components/imagesloaded/imagesloaded",
         "eventEmitter/EventEmitter": "bower_components/eventEmitter/EventEmitter",
         "eventie/eventie": "bower_components/eventie/eventie",
-        "modernizr": "bower_components/modernizr/modernizr"
+        "modernizr": "bower_components/modernizr/modernizr",
+        "state-machine": "bower_components/javascript-state-machine/state-machine.min"
     },
     shim: {
         "videojs": {exports: 'videojs'}
@@ -20,6 +21,9 @@ require(['BigVideo'], function(bigvideo) {
       BV.init();
       // BV.show('./videos/fecine-elevator-nothingloop.webmhd.webm',{altSource:'./videos/fecine-elevator-nothingloop.mp4',ambient:true});
       BV.show('./videos/fecine-elevator-nothingloop.webmhd.webm',{ambient:true});
+
+      // Fades in the video once it is ready. hides the flickering in the beginning.
+      $('#big-video-wrap').hide().ready(function () {$('#big-video-wrap').fadeIn(1200)});
 
       // Hides logo, shows navbar
       $( document ).ready(function() {
