@@ -25,7 +25,6 @@ require(['BigVideo'], function(bigvideo) {
       // Fades in the video once it is ready. hides the flickering in the beginning.
       $('#big-video-wrap').hide().ready(function () {$('#big-video-wrap').fadeIn(1200)});
 
-      // Hides logo, shows navbar
       $( document ).ready(function() {
 
         $('.bv-ctrl').on('click', function(e) {
@@ -36,7 +35,7 @@ require(['BigVideo'], function(bigvideo) {
 
             case 'btn-fr':
 
-              // Fades out the logo then plays the next video with the french navbar sliding from top.
+              // Fades out the logo with the french navbar sliding from top.
               $('#splash').fadeOut(1000, function () {
                 $('#navbar-fr').show().animate({top: 0}, 800);
               });
@@ -44,7 +43,7 @@ require(['BigVideo'], function(bigvideo) {
 
             case 'btn-en':
 
-              // Fades out the logo then plays the next video with the english navbar sliding from top.
+              // Fades out the logo with the english navbar sliding from top.
               $('#splash').fadeOut(1000, function () {
                 $('#navbar-en').show().animate({top: 0}, 800);
               });
