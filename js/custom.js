@@ -99,9 +99,9 @@ require(['BigVideo', 'state-machine'], function(bigvideo, StateMachine) {
 
               // Goes back to the initial loop, and display the contact form.
               $('.page').fadeOut(600, function () {
-                BV.getPlayer().on("ended", function(){
+                BV.getPlayer().one("ended", function(){
                   console.log('waiting for video to end before playing fecine-forestloop.');
-                  BV.show('./videos/fecine-forestloop.webmhd.webm',{ambient:false});
+                  BV.show('./videos/fecine-forestloop.webmhd.webm',{ambient:true});
                 });
               });
               break;
@@ -109,24 +109,24 @@ require(['BigVideo', 'state-machine'], function(bigvideo, StateMachine) {
             case 'btn-benjamin':
 
               BV.show('./videos/fecine-elevator-nothing2ben.webmhd.webm',{ambient:false});
-              BV.getPlayer().on("ended", function(){
+              BV.getPlayer().one("ended", function(){
                 console.log('waiting for video to end before playing benloop.');
-                BV.show('./videos/fecine-elevator-benloop.webmhd.webm',{ambient:false});
+                BV.show('./videos/fecine-elevator-benloop.webmhd.webm',{ambient:true});
               });
               break;
 
             case 'btn-marc-antoine':
 
               BV.show('./videos/fecine-elevator-nothing2marco.webmhd.webm',{ambient:false});
-              BV.getPlayer().on("ended", function(){
-                BV.show('./videos/fecine-elevator-marcoloop.webmhd.webm',{ambient:false});
+              BV.getPlayer().one("ended", function(){
+                BV.show('./videos/fecine-elevator-marcoloop.webmhd.webm',{ambient:true});
               });
               break;
 
             case 'btn-team-back':
 
-              BV.getPlayer().on("ended", function(){
-                BV.show('./videos/fecine-elevator-nothingloop.webmhd.webm',{ambient:false});
+              BV.getPlayer().one("ended", function(){
+                BV.show('./videos/fecine-elevator-nothingloop.webmhd.webm',{ambient:true});
               });
               break;
 
