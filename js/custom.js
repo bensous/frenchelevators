@@ -8,14 +8,45 @@ require.config({
         "eventEmitter/EventEmitter": "bower_components/eventEmitter/EventEmitter",
         "eventie/eventie": "bower_components/eventie/eventie",
         "modernizr": "bower_components/modernizr/modernizr",
-        "state-machine": "bower_components/javascript-state-machine/state-machine.min"
+        "state-machine": "bower_components/javascript-state-machine/state-machine"
     },
     shim: {
         "videojs": {exports: 'videojs'}
     }
 });
 
-require(['BigVideo', 'state-machine'], function(bigvideo) {
+require(['state-machine'], function(StateMachine) {
+  BG = function() {
+
+    var fsm = StateMachine.create({
+      initial: 'nothing',
+
+      events: [
+        { name: 'clickben',   from: 'nothing',        to: 'ben'     },
+        { name: 'clickmarco', from: 'nothing',        to: 'marco'   },
+        { name: 'clickback',  from: ['marco', 'ben'], to: 'nothing' },
+      ],
+
+      callbacks: {
+        onbeforemarco: function (event, from, to) {console.log('nothing2marco')},
+        onmarco:       function (event, from, to) {console.log('marco')},
+        onleavemarco:  function (event, from, to) {console.log('marco2nothing')},
+
+        onbeforeben: function (event, from, to) {console.log('nothing2ben')},
+        onben:       function (event, from, to) {console.log('ben')},
+        onleaveben:  function (event, from, to) {console.log('ben2nothing')},
+
+        onchangestate: function(event, from, to) { console.log("CHANGED STATE: " + from + " to " + to); }
+      }
+
+    });
+
+    return fsm;
+
+  }();
+});
+
+require(['BigVideo', 'state-machine'], function(bigvideo, StateMachine) {
   
   $(function() {
 
@@ -69,8 +100,8 @@ require(['BigVideo', 'state-machine'], function(bigvideo) {
               // Goes back to the initial loop, and display the contact form.
               $('.page').fadeOut(600, function () {
                 BV.getPlayer().on("ended", function(){
-                  console.log('waiting for video to end before playing nothingloop.');
-                  BV.show('./videos/fecine-elevator-nothingloop.webmhd.webm',{ambient:false});
+                  console.log('waiting for video to end before playing fecine-forestloop.');
+                  BV.show('./videos/fecine-forestloop.webmhd.webm',{ambient:false});
                 });
               });
               break;
