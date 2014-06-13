@@ -86,12 +86,8 @@ require(['BigVideo', 'state-machine'], function(bigvideo, StateMachine) {
 
               // Goes back to the initial loop, and display the team page.
               if (!$('#team-page').is(":visible")) {
-                $('.page').fadeOut(600, function () {
-
-                    console.log('Showing team page NOW !');
-                    $('#team-page').show();
-
-                });
+                $('.page').fadeOut(600);
+                $('#team-page').hide().fadeIn(600);
               };
               break;
 
