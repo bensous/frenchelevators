@@ -28,13 +28,14 @@ require(['state-machine'], function(StateMachine) {
       ],
 
       callbacks: {
-        onbeforemarco: function (event, from, to) {console.log('nothing2marco')},
-        onmarco:       function (event, from, to) {console.log('marco')},
-        onleavemarco:  function (event, from, to) {console.log('marco2nothing')},
+        onmarco:       function (event, from, to) {console.log('marco');         },
+        onben:         function (event, from, to) {console.log('ben');           },
 
-        onbeforeben: function (event, from, to) {console.log('nothing2ben')},
-        onben:       function (event, from, to) {console.log('ben')},
-        onleaveben:  function (event, from, to) {console.log('ben2nothing')},
+        onbeforemarco: function (event, from, to) {console.log('nothing2marco'); },
+        onbeforeben:   function (event, from, to) {console.log('nothing2ben');   },
+       
+        onleavemarco:  function (event, from, to) {console.log('marco2nothing'); },
+        onleaveben:    function (event, from, to) {console.log('ben2nothing');   },
 
         onchangestate: function(event, from, to) { console.log("CHANGED STATE: " + from + " to " + to); }
       }
@@ -103,7 +104,7 @@ require(['BigVideo', 'state-machine'], function(bigvideo, StateMachine) {
               break;
 
             case 'btn-benjamin':
-
+              BG.clickben();
               BV.show('./videos/fecine-elevator-nothing2ben.webmhd.webm',{ambient:false});
               BV.getPlayer().one("ended", function(){
                 console.log('waiting for video to end before playing benloop.');
@@ -112,7 +113,7 @@ require(['BigVideo', 'state-machine'], function(bigvideo, StateMachine) {
               break;
 
             case 'btn-marc-antoine':
-
+              BG.clickmarco();
               BV.show('./videos/fecine-elevator-nothing2marco.webmhd.webm',{ambient:false});
               BV.getPlayer().one("ended", function(){
                 BV.show('./videos/fecine-elevator-marcoloop.webmhd.webm',{ambient:true});
@@ -120,7 +121,7 @@ require(['BigVideo', 'state-machine'], function(bigvideo, StateMachine) {
               break;
 
             case 'btn-team-back':
-
+              BG.clickback();
               BV.getPlayer().one("ended", function(){
                 BV.show('./videos/fecine-elevator-nothingloop.webmhd.webm',{ambient:true});
               });
