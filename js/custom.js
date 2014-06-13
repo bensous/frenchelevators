@@ -15,15 +15,17 @@ require.config({
     }
 });
 
-require(['BigVideo'], function(bigvideo) {
+require(['BigVideo', 'state-machine'], function(bigvideo) {
+  
   $(function() {
+
       var BV = new $.BigVideo({useFlashForFirefox:false});
       BV.init();
       // BV.show('./videos/fecine-elevator-nothingloop.webmhd.webm',{altSource:'./videos/fecine-elevator-nothingloop.mp4',ambient:true});
       BV.show('./videos/fecine-elevator-nothingloop.webmhd.webm',{ambient:true});
 
       // Fades in the video once it is ready. hides the flickering in the beginning.
-      $('#big-video-wrap').hide().ready(function () {$('#big-video-wrap').fadeIn(1200)});
+      $('#big-video-wrap').hide().ready(function () { $('#big-video-wrap').fadeIn(1200) });
 
       $( document ).ready(function() {
 
@@ -55,7 +57,7 @@ require(['BigVideo'], function(bigvideo) {
               if (!$('#team-page').is(":visible")) {
                 $('.page').fadeOut(600, function () {
 
-                    console.log('Showing team NOW !');
+                    console.log('Showing team page NOW !');
                     $('#team-page').show();
 
                 });
@@ -67,6 +69,7 @@ require(['BigVideo'], function(bigvideo) {
               // Goes back to the initial loop, and display the contact form.
               $('.page').fadeOut(600, function () {
                 BV.getPlayer().on("ended", function(){
+                  console.log('waiting for video to end before playing nothingloop.');
                   BV.show('./videos/fecine-elevator-nothingloop.webmhd.webm',{ambient:false});
                 });
               });
@@ -76,6 +79,7 @@ require(['BigVideo'], function(bigvideo) {
 
               BV.show('./videos/fecine-elevator-nothing2ben.webmhd.webm',{ambient:false});
               BV.getPlayer().on("ended", function(){
+                console.log('waiting for video to end before playing benloop.');
                 BV.show('./videos/fecine-elevator-benloop.webmhd.webm',{ambient:false});
               });
               break;
