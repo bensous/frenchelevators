@@ -23,6 +23,8 @@ require(['BigVideo', 'state-machine'], function(bigvideo, StateMachine) {
   
   var BV = new $.BigVideo({useFlashForFirefox:false});
   BV.init();
+  BV.show('./videos/fecine-elevator-nothingloop.webmhd.webm',{ambient:true});
+  // BV.getPlayer().on("ended", function () {console.log('playback: video ended')});
 
   BG = function() {
 
@@ -30,15 +32,16 @@ require(['BigVideo', 'state-machine'], function(bigvideo, StateMachine) {
       initial: 'nothing',
 
       events: [
-        { name: 'clickben',   from: 'nothing',        to: 'ben'     },
-        { name: 'clickmarco', from: 'nothing',        to: 'marco'   },
+        { name: 'clickben',   from: ['nothing'],      to: 'ben'     },
+        { name: 'clickmarco', from: ['nothing'],      to: 'marco'   },
         { name: 'clickback',  from: ['marco', 'ben'], to: 'nothing' },
       ],
 
       callbacks: {
         onnothing:     function (event, from, to) {
-          console.log('playback: starting the nothing loop.');
-          BV.show('./videos/fecine-elevator-nothingloop.webmhd.webm',{ambient:true});
+          BV.getPlayer().one("ended", function(){
+            BV.show('./videos/fecine-elevator-nothingloop.webmhd.webm',{ambient:true});
+          });
         },
         onmarco:       function (event, from, to) {
           console.log('marco'); // For some reasons, it never gets printed to the console.
@@ -50,39 +53,23 @@ require(['BigVideo', 'state-machine'], function(bigvideo, StateMachine) {
         onentermarco: function (event, from, to) {
           BV.show('./videos/fecine-elevator-nothing2marco.webmhd.webm',{ambient:false});
 
-          console.log('playback: Waiting for video to end before playing marcoloop.');
           BV.getPlayer().one("ended", function(){
-            console.log('playback: Playing marcoloop.');
             BV.show('./videos/fecine-elevator-marcoloop.webmhd.webm',{ambient:true});
           }); 
         },
         onenterben:   function (event, from, to) {
           BV.show('./videos/fecine-elevator-nothing2ben.webmhd.webm',{ambient:false});
 
-          console.log('playback: Waiting for video to end before playing benloop.');
           BV.getPlayer().one("ended", function(){
-            console.log('playback: Playing benloop.');
             BV.show('./videos/fecine-elevator-benloop.webmhd.webm',{ambient:true});
           });
         },
        
-        onleavemarco:  function (event, from, to) {console.log('marco2nothing');
+        onleavemarco:  function (event, from, to) {
           BV.show('./videos/fecine-elevator-marco2nothing.webmhd.webm',{ambient:false});
-
-          console.log('playback: Waiting for video to end before playing nothingloop.');
-          BV.getPlayer().one("ended", function(){
-            console.log('playback: Playing nothingloop.');
-            BV.show('./videos/fecine-elevator-nothingloop.webmhd.webm',{ambient:true});
-          });
         },
-        onleaveben:    function (event, from, to) {console.log('ben2nothing');
+        onleaveben:    function (event, from, to) {
           BV.show('./videos/fecine-elevator-ben2nothing.webmhd.webm',{ambient:false});
-
-          console.log('playback: Waiting for video to end before playing nothingloop.');
-          BV.getPlayer().one("ended", function(){
-            console.log('playback: Playing nothingloop.');
-            BV.show('./videos/fecine-elevator-nothingloop.webmhd.webm',{ambient:true});
-          });
         },
 
         onchangestate: function(event, from, to) { console.log("CHANGED STATE: " + from + " to " + to);}
