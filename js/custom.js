@@ -21,12 +21,31 @@ require(['state-machine'], function(StateMachine) {
 
 require(['BigVideo', 'state-machine'], function(bigvideo, StateMachine) {
   
-  var BV = new $.BigVideo({useFlashForFirefox:false});
+  BV = new $.BigVideo({useFlashForFirefox:false});
   BV.init();
   BV.show('./videos/fecine-elevator-nothingloop.webmhd.webm',{ambient:true});
   // BV.getPlayer().on("ended", function () {console.log('playback: video ended')});
 
   BG = function() {
+
+    handle_hiding = function () {
+
+      // console.log('hiding');
+      // $('.hideable').each(function( i ) {
+
+      //   var attrib = $(this).attr('onclick');
+      //   var action =  attrib.match(/BG\.(.*?)\(\);/g);
+        
+      //   console.log(action);
+
+      //   if ( !fsm.cannot(action) ) {
+      //     $(this).show();
+      //   } else {
+      //     $(this).hide();
+      //   }
+      // });
+
+    }
 
     var fsm = StateMachine.create({
       initial: 'nothing',
@@ -39,17 +58,16 @@ require(['BigVideo', 'state-machine'], function(bigvideo, StateMachine) {
 
       callbacks: {
         onnothing:     function (event, from, to) {
-          BV.getPlayer().one("ended", function(){
+          if (from == 'none') {
             BV.show('./videos/fecine-elevator-nothingloop.webmhd.webm',{ambient:true});
-          });
-        },
-        onmarco:       function (event, from, to) {
-          console.log('marco'); // For some reasons, it never gets printed to the console.
-        },
-        onben:         function (event, from, to) {
-          console.log('ben'); // For some reasons, it never gets printed to the console.
+          } else {
+            BV.getPlayer().one("ended", function(){
+              BV.show('./videos/fecine-elevator-nothingloop.webmhd.webm',{ambient:true});
+            });
+          }
         },
 
+        /* Handles MARCO related events */
         onentermarco: function (event, from, to) {
           BV.show('./videos/fecine-elevator-nothing2marco.webmhd.webm',{ambient:false});
 
@@ -57,6 +75,14 @@ require(['BigVideo', 'state-machine'], function(bigvideo, StateMachine) {
             BV.show('./videos/fecine-elevator-marcoloop.webmhd.webm',{ambient:true});
           }); 
         },
+        onmarco:       function (event, from, to) {
+          console.log('marco'); // For some reasons, it never gets printed to the console.
+        },
+        onleavemarco:  function (event, from, to) {
+          BV.show('./videos/fecine-elevator-marco2nothing.webmhd.webm',{ambient:false});
+        },
+
+        /* Handles BEN related events */
         onenterben:   function (event, from, to) {
           BV.show('./videos/fecine-elevator-nothing2ben.webmhd.webm',{ambient:false});
 
@@ -64,15 +90,20 @@ require(['BigVideo', 'state-machine'], function(bigvideo, StateMachine) {
             BV.show('./videos/fecine-elevator-benloop.webmhd.webm',{ambient:true});
           });
         },
-       
-        onleavemarco:  function (event, from, to) {
-          BV.show('./videos/fecine-elevator-marco2nothing.webmhd.webm',{ambient:false});
+        onben:         function (event, from, to) {
+          console.log('ben'); // For some reasons, it never gets printed to the console.
         },
         onleaveben:    function (event, from, to) {
           BV.show('./videos/fecine-elevator-ben2nothing.webmhd.webm',{ambient:false});
         },
 
-        onchangestate: function(event, from, to) { console.log("CHANGED STATE: " + from + " to " + to);}
+        onchangestate: function(event, from, to) {
+          console.log("CHANGED STATE: " + from + " to " + to);
+          
+          if (from != 'none') {
+            handle_hiding();
+          }
+        }
       }
     });
 
@@ -98,6 +129,7 @@ require(['BigVideo', 'state-machine'], function(bigvideo, StateMachine) {
             case 'btn-fr':
 
               // Fades out the logo with the french navbar sliding from top.
+              document.documentElement.lang = "fr";
               $('#splash').fadeOut(1000, function () {
                 $('#navbar-fr').show().animate({top: 0}, 800);
               });
@@ -106,6 +138,7 @@ require(['BigVideo', 'state-machine'], function(bigvideo, StateMachine) {
             case 'btn-en':
 
               // Fades out the logo with the english navbar sliding from top.
+              document.documentElement.lang = "en";
               $('#splash').fadeOut(1000, function () {
                 $('#navbar-en').show().animate({top: 0}, 800);
               });
