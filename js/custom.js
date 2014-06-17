@@ -30,48 +30,63 @@ require(['BigVideo', 'state-machine'], function(bigvideo, StateMachine) {
 
     handle_hiding = function () {
 
-      // console.log('hiding');
-      // $('.hideable').each(function( i ) {
+      $('.hideable').each(function( i ) {
 
-      //   var attrib = $(this).attr('onclick');
-      //   var action =  attrib.match(/BG\.(.*?)\(\);/g);
+        var attrib = $(this).attr('onclick');
+        var action =  attrib.slice(3,-3); // Assuming "BG.action();"
         
-      //   console.log(action);
-
-      //   if ( !fsm.cannot(action) ) {
-      //     $(this).show();
-      //   } else {
-      //     $(this).hide();
-      //   }
-      // });
+        if ( fsm.cannot(action) ) {
+          $(this).hide(400);
+        } else {
+          $(this).show(400);
+        }
+      });
 
     }
 
     var fsm = StateMachine.create({
-      initial: 'nothing',
+      initial: 'menu',
 
       events: [
-        { name: 'clickben',   from: ['nothing'],      to: 'ben'     },
-        { name: 'clickmarco', from: ['nothing'],      to: 'marco'   },
-        { name: 'clickback',  from: ['marco', 'ben'], to: 'nothing' },
+        { name: 'clickben',   from: ['team'],                  to: 'ben'   },
+        { name: 'clickmarco', from: ['team'],                  to: 'marco' },
+        { name: 'clickteam',  from: ['menu', 'about'],         to: 'team'  },
+        { name: 'clickback',  from: ['marco', 'ben', 'about'], to: 'team'  },
+
+        { name: 'clickabout', from: ['marco', 'ben', 'team', 'menu'],          to: 'about' },
+        { name: 'clickmenu',  from: ['marco', 'ben', 'team', 'menu', 'about'], to: 'menu'  },
       ],
 
       callbacks: {
-        onnothing:     function (event, from, to) {
-          if (from == 'none') {
-            BV.show('./videos/fecine-elevator-nothingloop.webmhd.webm',{ambient:true});
-          } else {
-            BV.getPlayer().one("ended", function(){
-              BV.show('./videos/fecine-elevator-nothingloop.webmhd.webm',{ambient:true});
-            });
-          }
+        onmenu:      function (event, from, to) {
+          BV.show('./videos/fecine-elevator-nothingloop.webmhd.webm',{ambient:true});          
         },
+
+
+        onenterteam: function (event, from, to) {
+          BV.show('./videos/fecine-elevator-nothingloop.webmhd.webm',{ambient:true});
+          $('#team-page').hide().fadeIn(600);
+        },
+        onteam:      function (event, from, to) {
+          console.log('team');
+        },
+
+
+        onabout: function (event, from, to) {
+          BV.show('./videos/fecine-forestloop.webmhd.webm',{ambient:true});
+          $('.page').fadeOut(600, function () {
+            console.log('waiting for video to end before playing fecine-forestloop.');
+            BV.getPlayer().one("ended", function(){
+            });
+          });
+        },
+
 
         /* Handles MARCO related events */
         onentermarco: function (event, from, to) {
           BV.show('./videos/fecine-elevator-nothing2marco.webmhd.webm',{ambient:false});
 
-          BV.getPlayer().one("ended", function(){ // Ideally this should be located in the `onmarco` calback function
+          BV.getPlayer().one("ended", function () { // Ideally this should be located in the `onmarco` calback function
             BV.show('./videos/fecine-elevator-marcoloop.webmhd.webm',{ambient:true});
           }); 
         },
@@ -82,11 +97,12 @@ require(['BigVideo', 'state-machine'], function(bigvideo, StateMachine) {
           BV.show('./videos/fecine-elevator-marco2nothing.webmhd.webm',{ambient:false});
         },
 
+
         /* Handles BEN related events */
         onenterben:   function (event, from, to) {
           BV.show('./videos/fecine-elevator-nothing2ben.webmhd.webm',{ambient:false});
 
-          BV.getPlayer().one("ended", function(){ // Ideally this should be located in the `onben` calback function
+          BV.getPlayer().one("ended", function () { // Ideally this should be located in the `onben` calback function
             BV.show('./videos/fecine-elevator-benloop.webmhd.webm',{ambient:true});
           });
         },
@@ -96,6 +112,7 @@ require(['BigVideo', 'state-machine'], function(bigvideo, StateMachine) {
         onleaveben:    function (event, from, to) {
           BV.show('./videos/fecine-elevator-ben2nothing.webmhd.webm',{ambient:false});
         },
+
 
         onchangestate: function(event, from, to) {
           console.log("CHANGED STATE: " + from + " to " + to);
@@ -144,29 +161,8 @@ require(['BigVideo', 'state-machine'], function(bigvideo, StateMachine) {
               });
               break;
 
-            case 'nav-team':
-
-              // Goes back to the initial loop, and display the team page.
-              if (!$('#team-page').is(":visible")) {
-                $('.page').fadeOut(600);
-                $('#team-page').hide().fadeIn(600);
-              };
-              break;
-
-            case 'nav-about':
-
-              // Goes back to the initial loop, and display the contact form.
-              $('.page').fadeOut(600, function () {
-                BV.getPlayer().one("ended", function(){
-                  console.log('waiting for video to end before playing fecine-forestloop.');
-                  BV.show('./videos/fecine-forestloop.webmhd.webm',{ambient:true});
-                });
-              });
-              break;
-
             default:
               console.log('no action set for ' + this.id);
-              $('.page').fadeOut(600);
           };
         });
 
