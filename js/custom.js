@@ -53,14 +53,14 @@ require(['BigVideo', 'state-machine'], function(bigvideo, StateMachine) {
         onentermarco: function (event, from, to) {
           BV.show('./videos/fecine-elevator-nothing2marco.webmhd.webm',{ambient:false});
 
-          BV.getPlayer().one("ended", function(){
+          BV.getPlayer().one("ended", function(){ // Ideally this should be located in the `onmarco` calback function
             BV.show('./videos/fecine-elevator-marcoloop.webmhd.webm',{ambient:true});
           }); 
         },
         onenterben:   function (event, from, to) {
           BV.show('./videos/fecine-elevator-nothing2ben.webmhd.webm',{ambient:false});
 
-          BV.getPlayer().one("ended", function(){
+          BV.getPlayer().one("ended", function(){ // Ideally this should be located in the `onben` calback function
             BV.show('./videos/fecine-elevator-benloop.webmhd.webm',{ambient:true});
           });
         },
@@ -129,18 +129,6 @@ require(['BigVideo', 'state-machine'], function(bigvideo, StateMachine) {
                   BV.show('./videos/fecine-forestloop.webmhd.webm',{ambient:true});
                 });
               });
-              break;
-
-            case 'btn-benjamin':
-              BG.clickben();
-              break;
-
-            case 'btn-marc-antoine':
-              BG.clickmarco();
-              break;
-
-            case 'btn-team-back':
-              BG.clickback();
               break;
 
             default:
