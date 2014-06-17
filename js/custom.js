@@ -51,9 +51,9 @@ require(['BigVideo', 'state-machine'], function(bigvideo, StateMachine) {
         { name: 'clickben',   from: ['team'],                  to: 'ben'   },
         { name: 'clickmarco', from: ['team'],                  to: 'marco' },
         { name: 'clickteam',  from: ['menu', 'about'],         to: 'team'  },
-        { name: 'clickback',  from: ['marco', 'ben', 'about'], to: 'team'  },
+        { name: 'clickback',  from: ['marco', 'ben'],          to: 'team'  },
 
-        { name: 'clickabout', from: ['marco', 'ben', 'team', 'menu'],          to: 'about' },
+        { name: 'clickabout', from: ['marco', 'ben', 'team', 'menu', 'about'], to: 'about' },
         { name: 'clickmenu',  from: ['marco', 'ben', 'team', 'menu', 'about'], to: 'menu'  },
       ],
 
@@ -64,8 +64,15 @@ require(['BigVideo', 'state-machine'], function(bigvideo, StateMachine) {
 
 
         onenterteam: function (event, from, to) {
-          BV.show('./videos/fecine-elevator-nothingloop.webmhd.webm',{ambient:true});
-          $('#team-page').hide().fadeIn(600);
+          if (from != 'ben' && from != 'marco' ) {
+            BV.show('./videos/fecine-elevator-nothingloop.webmhd.webm',{ambient:true});
+            $('#team-page').hide().fadeIn(600);
+          } else {
+            BV.getPlayer().one("ended", function () {
+              BV.show('./videos/fecine-elevator-nothingloop.webmhd.webm',{ambient:true});
+            });
+          }
+          ;
         },
         onteam:      function (event, from, to) {
           console.log('team');
@@ -86,14 +93,12 @@ require(['BigVideo', 'state-machine'], function(bigvideo, StateMachine) {
         onentermarco: function (event, from, to) {
           BV.show('./videos/fecine-elevator-nothing2marco.webmhd.webm',{ambient:false});
 
-          BV.getPlayer().one("ended", function () { // Ideally this should be located in the `onmarco` calback function
+          BV.getPlayer().one("ended", function () {
             BV.show('./videos/fecine-elevator-marcoloop.webmhd.webm',{ambient:true});
           }); 
         },
-        onmarco:       function (event, from, to) {
-          console.log('marco'); // For some reasons, it never gets printed to the console.
-        },
         onleavemarco:  function (event, from, to) {
+          console.log('playback: leaving marco.'); // For some reasons, it never gets printed to the console.
           BV.show('./videos/fecine-elevator-marco2nothing.webmhd.webm',{ambient:false});
         },
 
@@ -102,14 +107,12 @@ require(['BigVideo', 'state-machine'], function(bigvideo, StateMachine) {
         onenterben:   function (event, from, to) {
           BV.show('./videos/fecine-elevator-nothing2ben.webmhd.webm',{ambient:false});
 
-          BV.getPlayer().one("ended", function () { // Ideally this should be located in the `onben` calback function
+          BV.getPlayer().one("ended", function () {
             BV.show('./videos/fecine-elevator-benloop.webmhd.webm',{ambient:true});
           });
         },
-        onben:         function (event, from, to) {
-          console.log('ben'); // For some reasons, it never gets printed to the console.
-        },
         onleaveben:    function (event, from, to) {
+          console.log('playback: leaving ben.'); // For some reasons, it never gets printed to the console.
           BV.show('./videos/fecine-elevator-ben2nothing.webmhd.webm',{ambient:false});
         },
 
@@ -139,11 +142,10 @@ require(['BigVideo', 'state-machine'], function(bigvideo, StateMachine) {
 
         $('.bv-ctrl').on('click', function(e) {
 
-          e.preventDefault();
-
           switch (this.id) {
 
             case 'btn-fr':
+              e.preventDefault();
 
               // Fades out the logo with the french navbar sliding from top.
               document.documentElement.lang = "fr";
@@ -153,6 +155,7 @@ require(['BigVideo', 'state-machine'], function(bigvideo, StateMachine) {
               break;
 
             case 'btn-en':
+              e.preventDefault();
 
               // Fades out the logo with the english navbar sliding from top.
               document.documentElement.lang = "en";
