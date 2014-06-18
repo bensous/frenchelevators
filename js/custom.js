@@ -74,6 +74,12 @@ require(['BigVideo', 'state-machine'], function(bigvideo, StateMachine) {
       ],
 
       callbacks: {
+        onclicklang: function (event, from, to) {
+          // Fades in the video once it is ready. hides the flickering in the beginning.
+          $('#big-video-wrap').hide().ready(function () { $('#big-video-wrap').fadeIn(1200) });
+        },
+
+
         onmenu:      function (event, from, to) {
           play('fecine-forestloop');
         },
@@ -138,10 +144,6 @@ require(['BigVideo', 'state-machine'], function(bigvideo, StateMachine) {
   }();
 
   $(function() {
-
-
-      // Fades in the video once it is ready. hides the flickering in the beginning.
-      $('#big-video-wrap').hide().ready(function () { $('#big-video-wrap').fadeIn(1200) });
 
       $( document ).ready(function() {
 
