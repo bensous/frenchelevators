@@ -15,10 +15,6 @@ require.config({
     }
 });
 
-require(['state-machine'], function(StateMachine) {
-  
-});
-
 require(['BigVideo', 'state-machine'], function(bigvideo, StateMachine) {
   
   BV = new $.BigVideo({useFlashForFirefox:false});
@@ -46,20 +42,19 @@ require(['BigVideo', 'state-machine'], function(bigvideo, StateMachine) {
     play = function (name) {
 
       // BV.show('./videos/fecine-elevator-nothingloop.webmhd.webm',{altSource:'./videos/fecine-elevator-nothingloop.mp4',ambient:true});
-      BV.show('./videos/' + name + '.webmhd.webm',{ambient:true});
+      BV.show('./videos/' + name + '.webmhd.webm',{altSource:'./videos/' + name + '.mp4', ambient:true});
     }
 
     transition = function (name) {
 
       BV.getPlayer().one("ended", function () {
         // BV.show('./videos/fecine-elevator-nothingloop.webmhd.webm',{altSource:'./videos/fecine-elevator-nothingloop.mp4',ambient:true});
-        BV.show('./videos/' + name + '.webmhd.webm',{ambient:true});
+        BV.show('./videos/' + name + '.webmhd.webm',{altSource:'./videos/' + name + '.mp4', ambient:true});
       });
     }
 
 
     var fsm = StateMachine.create({
-      // initial: 'none',
 
       events: [
 
@@ -103,7 +98,7 @@ require(['BigVideo', 'state-machine'], function(bigvideo, StateMachine) {
 
         onabout: function (event, from, to) {
           play('fecine-forestloop');
-          $('.page').fadeOut(600);
+          //$('.page').fadeOut(600);
         },
 
 
