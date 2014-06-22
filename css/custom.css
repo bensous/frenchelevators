@@ -89,12 +89,22 @@ body {
 }
 
 .nametag {
-  color: rgba(250,250,250,0.60);;
+  color: rgba(250,250,250,0.60);
   background: rgba(0,0,0,0.80);
   display: inline-block;
   padding: 1.5rem 3rem;
   margin-top: 7rem;
   font-size: 5rem;
+}
+
+.description {
+  color: rgba(250,250,250,0.60);
+  background: rgba(0,0,0,0.80);
+  display: inline-block;
+  padding: 1.5rem 3rem;
+  margin-top: 10%;
+  font-size: 5rem;
+  width: 35%;
 }
 
 .left {
@@ -107,4 +117,14 @@ body {
   position: absolute;
   margin-top:20%;
   right: 1rem;
+}
+
+.middle-left {
+  margin-top: 10%;
+  left: 15%;
+}
+
+.middle-right {
+  margin-top: 10%;
+  left: 42%;
 }
