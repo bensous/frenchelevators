@@ -29,7 +29,7 @@ require(['BigVideo', 'state-machine'], function(bigvideo, StateMachine) {
       $('.hideable').each(function( i ) {
 
         var attrib = $(this).attr('onclick');
-        var action =  attrib.slice(3,-3); // Assuming "BG.action();"
+        var action =  attrib.slice(3,-3) || ''; // Assuming "BG.action();"
         
         if ( fsm.cannot(action) ) {
           $(this).fadeOut(400);
@@ -39,7 +39,16 @@ require(['BigVideo', 'state-machine'], function(bigvideo, StateMachine) {
       });
     }
 
+    pause = function (name) {
+      BV.getPlayer().pause();
+    }
+
     play = function (name) {
+
+      if (!name) {
+        BV.getPlayer().pause();
+        return;
+      }
 
       // BV.show('./videos/fecine-elevator-nothingloop.webmhd.webm',{altSource:'./videos/fecine-elevator-nothingloop.mp4',ambient:true});
       BV.show('./videos/' + name + '.webmhd.webm',{altSource:'./videos/' + name + '.mp4', ambient:true});
@@ -59,11 +68,12 @@ require(['BigVideo', 'state-machine'], function(bigvideo, StateMachine) {
       events: [
 
         { name: 'clickmenu',  from: ['*'],              to: 'menu'  },
+        { name: 'clickprod',  from: ['*'],              to: 'prod'  },
+        { name: 'clickteam',  from: ['*'],              to: 'team'  },
         { name: 'clickabout', from: ['*'],              to: 'about' },
         { name: 'clicklang',  from: ['none'],           to: 'about' },
         { name: 'clickben',   from: ['team'],           to: 'ben'   },
         { name: 'clickmarco', from: ['team'],           to: 'marco' },
-        { name: 'clickteam',  from: ['menu', 'about'],  to: 'team'  },
         { name: 'clickback',  from: ['marco', 'ben'],   to: 'team'  },
 
       ],
@@ -79,6 +89,17 @@ require(['BigVideo', 'state-machine'], function(bigvideo, StateMachine) {
           play('fecine-forestloop');
         },
 
+        onenterprod:      function (event, from, to) {
+          $('#production-page').hide().removeClass('hidden').fadeIn(600);
+          $('#video-mask').hide().removeClass('hidden').fadeIn(600);
+          pause();
+        },
+        onleaveprod:      function (event, from, to) {
+          $('#production-page').fadeOut(600).hide().addClass('hidden');
+          $('#video-mask').fadeOut(600).hide().addClass('hidden');
+          console.log('video-mask: hidden !!');
+          play();
+        },
 
         onenterteam: function (event, from, to) {
           if (from != 'ben' && from != 'marco' ) {

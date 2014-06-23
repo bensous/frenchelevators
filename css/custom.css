@@ -11,12 +11,15 @@ body {
   background: black;
 }
 
-#splash {
-  z-index: 10001;
+.page {
   height: 100%;
   width: 100%;
   left: 0;
   top: 0;
+}
+
+#splash {
+  z-index: 10001;
 }
 
 #big-logo {

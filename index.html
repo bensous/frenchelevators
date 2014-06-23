@@ -20,7 +20,9 @@
   </head>
 
   <body>
-
+    
+    <div id="video-mask" class="page hidden" style="background-color: white; position:fixed; z-index: -500;"></div>
+    
     <div class="main">
 
       <nav id="navbar-en" class="navbar navbar-default navbar-fixed-top navbar-inverse navbar-hidden" role="navigation" style="display:none;">
@@ -31,7 +33,7 @@
           <ul class="nav navbar-nav navbar-right">
             <li><a id="nav-about" class="bv-ctrl" onclick="BG.clickabout();">ABOUT</a></li>
             <li><a id="nav-team" class="bv-ctrl" onclick="BG.clickteam();">THE TEAM</a></li>
-            <li><a id="nav-production" class="bv-ctrl" onclick="BG.clickmenu();">PRODUCTIONS</a></li>
+            <li><a id="nav-production" class="bv-ctrl" onclick="BG.clickprod();">PRODUCTIONS</a></li>
             <li><a id="nav-contact" class="bv-ctrl" onclick="BG.clickmenu();">CONTACT</a></li>
           </ul>
         </div>
@@ -45,7 +47,7 @@
           <ul class="nav navbar-nav navbar-right">
             <li><a id="nav-about" class="bv-ctrl" onclick="BG.clickabout();">A PROPOS</a></li>
             <li><a id="nav-team" class="bv-ctrl" onclick="BG.clickteam();">L'EQUIPE</a></li>
-            <li><a id="nav-production" class="bv-ctrl" onclick="BG.clickmenu();">PRODUCTIONS</a></li>
+            <li><a id="nav-production" class="bv-ctrl" onclick="BG.clickprod();">PRODUCTIONS</a></li>
             <li><a id="nav-contact" class="bv-ctrl" onclick="BG.clickmenu();">CONTACTEZ NOUS</a></li>
           </ul>
         </div>
@@ -79,21 +81,37 @@
 
         </div>
 
-        <!-- Production -->
-        <div id="production-page" class="row page hidden">
 
-          <div class="text-center">
-            <div id="centerer" style=""></div>
-            <div id="btn-benjamin" class="bv-ctrl hideable nametag left" bv-state="ben" onclick="BG.clickben();">BENJAMIN</div>
-            <div class="bv-ctrl hideable ben description right middle-right" onclick="BG.clickback();">YO, MOI C'EST BEN</div>
-            <div id="btn-marc-antoine" class="bv-ctrl hideable nametag right" onclick="BG.clickmarco();">MARC-ANTOINE</div>
-            <div class="bv-ctrl hideable marco description left middle-left" onclick="BG.clickback();">YO, MOI C'EST MARC-ANTOINE</div>
-            <div id="btn-team-back" class="bv-ctrl hideable nametag text-center" onclick="BG.clickback();">X</div>
+      </div>
+
+      <div id="production-page" class="container hidden" style="height: 100%;">
+        <!-- Production -->
+        <div class="row">
+
+          <div id="navbar-offset" style="margin-top:8rem;"></div>
+          
+          <div class="col-md-6">
+            <img src="http://placehold.it/1080x720" style="width:100%;">
+          </div>
+          <div class="col-md-6">
+            <div class="">SNOWBLIND SNOWBLIND SNOWBLIND SNOWBLIND SNOWBLIND SNOWBLIND SNOWBLIND SNOWBLIND SNOWBLIND SNOWBLIND SNOWBLIND SNOWBLIND SNOWBLIND SNOWBLIND SNOWBLIND SNOWBLIND SNOWBLIND SNOWBLIND SNOWBLIND SNOWBLIND SNOWBLIND SNOWBLIND SNOWBLIND SNOWBLIND </div>
+          </div>
+        
+        </div>
+
+        <div class="row">
+
+          <div class="col-md-6">
+            <img src="http://placehold.it/1080x720" style="width:100%;">
+          </div>
+          <div class="col-md-6">
+            <div class="">GAME OF THRONES GAME OF THRONES GAME OF THRONES GAME OF THRONES GAME OF THRONES GAME OF THRONES GAME OF THRONES GAME OF THRONES GAME OF THRONES GAME OF THRONES GAME OF THRONES GAME OF THRONES GAME OF THRONES GAME OF THRONES GAME OF THRONES </div>
           </div>
 
         </div>
 
       </div>
+
     </div>
 
   </body>
