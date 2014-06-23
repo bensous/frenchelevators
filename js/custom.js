@@ -58,14 +58,14 @@ require(['BigVideo', 'state-machine'], function(bigvideo, StateMachine) {
 
       events: [
 
-        { name: 'clicklang',  from: ['none'],                  to: 'about' },
-        { name: 'clickben',   from: ['team'],                  to: 'ben'   },
-        { name: 'clickmarco', from: ['team'],                  to: 'marco' },
-        { name: 'clickteam',  from: ['menu', 'about'],         to: 'team'  },
-        { name: 'clickback',  from: ['marco', 'ben'],          to: 'team'  },
+        { name: 'clickmenu',  from: ['*'],              to: 'menu'  },
+        { name: 'clickabout', from: ['*'],              to: 'about' },
+        { name: 'clicklang',  from: ['none'],           to: 'about' },
+        { name: 'clickben',   from: ['team'],           to: 'ben'   },
+        { name: 'clickmarco', from: ['team'],           to: 'marco' },
+        { name: 'clickteam',  from: ['menu', 'about'],  to: 'team'  },
+        { name: 'clickback',  from: ['marco', 'ben'],   to: 'team'  },
 
-        { name: 'clickabout', from: ['marco', 'ben', 'team', 'menu', 'about'], to: 'about' },
-        { name: 'clickmenu',  from: ['marco', 'ben', 'team', 'menu', 'about'], to: 'menu'  },
       ],
 
       callbacks: {
@@ -84,7 +84,7 @@ require(['BigVideo', 'state-machine'], function(bigvideo, StateMachine) {
           if (from != 'ben' && from != 'marco' ) {
           
             play('fecine-elevator-nothingloop');
-            $('#team-page').hide().fadeIn(600);
+            $('#team-page').removeClass('hidden').hide().fadeIn(600);
           
           } else {
           
@@ -98,7 +98,6 @@ require(['BigVideo', 'state-machine'], function(bigvideo, StateMachine) {
 
         onabout: function (event, from, to) {
           play('fecine-forestloop');
-          //$('.page').fadeOut(600);
         },
 
 
@@ -118,9 +117,8 @@ require(['BigVideo', 'state-machine'], function(bigvideo, StateMachine) {
           transition('fecine-elevator-benloop');
         },
         onleaveben:    function (event, from, to) {
-          console.log('playback: leaving ben.'); // For some reasons, it never gets printed to the console.
+          console.log('playback: leaving ben.');
           play('fecine-elevator-ben2nothing');
-          // BV.show('./videos/ben2nothing.png');
         },
 
 
