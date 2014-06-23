@@ -11,36 +11,12 @@ body {
   background: black;
 }
 
-.main.style3.primary {
-  background: #fff;
-  background: rgba(0,0,0,0.50);
-}
-
-.main.style3.secondary {
-  background: #fff;
-  background: rgba(0,0,0,0.85);
-}
-
-.box {
-  background: #fff;
-  background: rgba(0,0,0,0.85);
-  color: #39454b;
-  color: rgba(255,255,255,0.85);
-}
-
 #splash {
-  /*background-color: black;*/
   z-index: 10001;
   height: 100%;
   width: 100%;
   left: 0;
   top: 0;
-}
-
-.vjs-control-bar {
-  visibility: hidden;
-  display: none;
-  opacity: 0;
 }
 
 #big-logo {
@@ -53,17 +29,28 @@ body {
   height:7rem;
 }
 
+.big-btn {
+  font-size: 7rem;
+  margin: 2rem;
+}
+
+/* Handles Video Player behaviour
+ * - Hides text feedback
+ * - Puts video in background
+ * - Aligns top of video and page
+ */
+.vjs-control-bar {
+  visibility: hidden;
+  display: none;
+  opacity: 0;
+}
+
 #big-video-wrap {
   z-index: -1000;
 }
 
 #big-video-vid {
   top:0 !important;
-}
-
-.big-btn {
-  font-size: 7rem;
-  margin: 2rem;
 }
 
 /* OVERIDING BOOTSTRAP DEFAULT NAVBAR */
@@ -109,22 +96,24 @@ body {
 
 .left {
   position: absolute;
-  margin-top:20%;
+  margin-top: 20%;
   left: 1rem;
 }
 
 .right {
   position: absolute;
-  margin-top:20%;
+  margin-top: 20%;
   right: 1rem;
 }
 
 .middle-left {
+  position: absolute;
   margin-top: 10%;
   left: 15%;
 }
 
 .middle-right {
+  position: absolute;
   margin-top: 10%;
   left: 42%;
 }
