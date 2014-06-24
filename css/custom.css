@@ -56,6 +56,12 @@ body {
   top:0 !important;
 }
 
+.video-mask {
+  background-color: #fcfcfc;
+  position: fixed;
+  z-index: -500;
+}
+
 /* OVERIDING BOOTSTRAP DEFAULT NAVBAR */
 
 .navbar-brand {
@@ -119,4 +125,11 @@ body {
   position: absolute;
   margin-top: 10%;
   left: 42%;
+}
+
+.pellicule {
+  background-position: 50% 50%;
+  background-repeat: no-repeat;
+  background-size: contain;
+  width: 100%;
 }
