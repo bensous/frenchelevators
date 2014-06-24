@@ -91,14 +91,14 @@ require(['BigVideo', 'state-machine'], function(bigvideo, StateMachine) {
 
         onenterprod:      function (event, from, to) {
           $('#production-page').hide().removeClass('hidden').fadeIn(600);
-          $('#video-mask').hide().removeClass('hidden').fadeIn(600);
-          pause();
+          //$('#video-mask').hide().removeClass('hidden').fadeIn(600);
+          //pause();
+          play('fe-oldfilmwhite');
         },
         onleaveprod:      function (event, from, to) {
           $('#production-page').fadeOut(600).hide().addClass('hidden');
-          $('#video-mask').fadeOut(600).hide().addClass('hidden');
-          console.log('video-mask: hidden !!');
-          play();
+          //$('#video-mask').fadeOut(600).hide().addClass('hidden');
+          //play();
         },
 
         onenterteam: function (event, from, to) {
