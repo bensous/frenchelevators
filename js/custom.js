@@ -2,7 +2,7 @@ require.config({
     paths: {
         "BigVideo": "bower_components/BigVideo.js/lib/bigvideo",
         "jquery": "bower_components/jquery/dist/jquery.min",
-        "jquery-ui": "bower_components/jquery-ui/ui/jquery-ui",
+        "jquery-ui": "bower_components/jquery-ui/jquery-ui.min",
         "videojs": "bower_components/video.js/dist/video-js/video",
         "imagesloaded": "bower_components/imagesloaded/imagesloaded",
         "eventEmitter/EventEmitter": "bower_components/eventEmitter/EventEmitter",
@@ -27,14 +27,12 @@ require(['BigVideo', 'state-machine', 'modernizr'], function(bigvideo, StateMach
     handle_hiding = function () {
 
       $('.hideable').each(function( i ) {
-
-        var attrib = $(this).attr('onclick');
-        var action =  attrib.slice(3,-3) || ''; // Assuming "BG.action();"
         
-        if ( fsm.cannot(action) ) {
-          $(this).fadeOut(400);
-        } else {
+        // Hides the element if it does not belong to the state
+        if ( $(this).hasClass(fsm.current) ) {
           $(this).fadeIn(800);
+        } else {
+          $(this).fadeOut(300);
         }
       });
     }
@@ -66,7 +64,7 @@ require(['BigVideo', 'state-machine', 'modernizr'], function(bigvideo, StateMach
 
     transition = function (name) {
 
-      BV.getPlayer().one("ended", show(name));
+      BV.getPlayer().one("ended", function () {show(name);});
     }
 
 
