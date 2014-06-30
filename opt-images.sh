@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# Creates screenshots from videos
+echo `date` >> ./jpegoptim.log
+find ./videos/ -iname '*.mp4' -print0 | \
+ xargs -0 -n1 -I% ffmpeg -i %  -r  1  -t  1 %.jpg
+
 # Optimizes png files
 echo `date` >> ./optipng.log
 find ./images/ -iname '*.png' -print0 | \
