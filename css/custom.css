@@ -23,7 +23,7 @@ body {
 }
 
 #big-logo {
-  margin-top: 15rem;
+  margin-top: 5%;
   max-width: 469px;
   width: 100%;
 }
@@ -40,7 +40,7 @@ body {
 /* Handles Video Player behaviour
  * - Hides text feedback
  * - Puts video in background
- * - Aligns top of video and page
+ * - Aligns top of video/image and page
  */
 .vjs-control-bar {
   visibility: hidden;
@@ -56,6 +56,10 @@ body {
   top:0 !important;
 }
 
+#big-video-img {
+  top:0 !important;
+}
+
 .video-mask {
   background-color: #fcfcfc;
   position: fixed;
@@ -64,13 +68,17 @@ body {
 
 /* OVERIDING BOOTSTRAP DEFAULT NAVBAR */
 
+.navbar {
+  border: none;
+}
+
 .navbar-brand {
   padding: 0;
   padding-left: 15px;
 }
 
 .navbar-fixed-top {
-  background-color: rgba(0,0,0,0.80);
+  background-color: rgba(0,0,0,0);
   height: 7rem;
 }
 
@@ -79,8 +87,10 @@ body {
 }
 
 .navbar-nav>li>a {
+  text-shadow: 2px 2px 2px #000000;
+  color: rgba(255,255,255,0.95) !important;
   text-align: center;
-  font-size: 1.8rem;
+  font-size: 2rem;
   padding: 2.5rem 1.8rem;
 }
 
