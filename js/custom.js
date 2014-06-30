@@ -15,7 +15,7 @@ require.config({
     }
 });
 
-require(['BigVideo', 'state-machine'], function(bigvideo, StateMachine) {
+require(['BigVideo', 'state-machine', 'modernizr'], function(bigvideo, StateMachine, modernizr) {
   
   BV = new $.BigVideo({useFlashForFirefox:false});
   BV.init();
@@ -39,8 +39,19 @@ require(['BigVideo', 'state-machine'], function(bigvideo, StateMachine) {
       });
     }
 
-    pause = function (name) {
+    pause = function () {
       BV.getPlayer().pause();
+    }
+
+    show = function (name) {
+
+      if (Modernizr.touch) {
+        // If it is a touch device, just shows a picture, does not play the video
+        BV.show('./videos/' + name + '.mp4.jpg');
+      } else {
+      // BV.show('./videos/fecine-elevator-nothingloop.webmhd.webm',{altSource:'./videos/fecine-elevator-nothingloop.mp4',ambient:true});
+        BV.show('./videos/' + name + '.webmhd.webm',{altSource:'./videos/' + name + '.mp4', ambient:true});
+      }
     }
 
     play = function (name) {
@@ -50,16 +61,12 @@ require(['BigVideo', 'state-machine'], function(bigvideo, StateMachine) {
         return;
       }
 
-      // BV.show('./videos/fecine-elevator-nothingloop.webmhd.webm',{altSource:'./videos/fecine-elevator-nothingloop.mp4',ambient:true});
-      BV.show('./videos/' + name + '.webmhd.webm',{altSource:'./videos/' + name + '.mp4', ambient:true});
+      show(name);
     }
 
     transition = function (name) {
 
-      BV.getPlayer().one("ended", function () {
-        // BV.show('./videos/fecine-elevator-nothingloop.webmhd.webm',{altSource:'./videos/fecine-elevator-nothingloop.mp4',ambient:true});
-        BV.show('./videos/' + name + '.webmhd.webm',{altSource:'./videos/' + name + '.mp4', ambient:true});
-      });
+      BV.getPlayer().one("ended", show(name));
     }
 
 
