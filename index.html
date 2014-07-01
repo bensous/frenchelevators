@@ -42,7 +42,7 @@
                   <li><a id="nav-about" class="bv-ctrl" onclick="BG.clickabout();">ABOUT</a></li>
                   <li><a id="nav-team" class="bv-ctrl" onclick="BG.clickteam();">THE TEAM</a></li>
                   <li><a id="nav-production" class="bv-ctrl" onclick="BG.clickprod();">PRODUCTIONS</a></li>
-                  <li><a id="nav-contact" class="bv-ctrl" onclick="BG.clickmenu();">CONTACT</a></li>
+                  <li><a id="nav-contact" class="bv-ctrl" onclick="BG.clickcontact();">CONTACT</a></li>
                 </ul>
              </div>
         </div>
@@ -57,7 +57,7 @@
             <li><a id="nav-about" class="bv-ctrl" onclick="BG.clickabout();">A PROPOS</a></li>
             <li><a id="nav-team" class="bv-ctrl" onclick="BG.clickteam();">L'EQUIPE</a></li>
             <li><a id="nav-production" class="bv-ctrl" onclick="BG.clickprod();">PRODUCTIONS</a></li>
-            <li><a id="nav-contact" class="bv-ctrl" onclick="BG.clickmenu();">CONTACTEZ NOUS</a></li>
+            <li><a id="nav-contact" class="bv-ctrl" onclick="BG.clickcontact();">CONTACTEZ NOUS</a></li>
           </ul>
         </div>
       </nav>
@@ -138,6 +138,34 @@
 
         <div class="gradient top"></div>
         <div class="gradient bottom"></div>
+
+      </div>
+
+      <!-- Contact Form-->
+      <div id="contact-page" class="container hidden" style="height: 100%;">
+        
+        <div class="row">
+          <div class="col-md-offset-3 col-md-6" style="margin-top:8rem;">
+
+            <form method="post" action="#">
+              <div class="row">
+
+                <div class="col-md-6"><input type="text" name="name" placeholder="Name"></div>
+                <div class="col-md-6"><input type="text" name="email" placeholder="Email"></div>
+              </div>
+              <div class="row">
+                <div class="col-md-12"><textarea name="message" placeholder="Message" rows="6"></textarea></div>
+              </div>
+              <div class="row">
+                <div class="col-md-12">
+                  <ul class="actions text-center">
+                    <li><input type="submit" class="button" value="Send Message"></li>
+                  </ul>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
 
       </div>
 

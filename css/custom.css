@@ -61,7 +61,8 @@ body {
 }
 
 .video-mask {
-  background-color: #fcfcfc;
+  /*background-color: #fcfcfc;*/
+  background-color: #000000;
   position: fixed;
   z-index: -500;
 }
@@ -158,4 +159,48 @@ body {
   display: inline-block;
   vertical-align: middle;
   float: none;
+}
+
+/* ALL ABOUT THE CONTACT FORM */
+
+form input[type="text"], form textarea {
+  margin: 2rem;
+  display: block;
+  width: 100%;
+  padding: 0.75em;
+  background: none;
+  border: solid 2px rgba(185,186,187,0.25);
+  color: inherit;
+  border-radius: 0.5em;
+  outline: none;
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  -o-appearance: none;
+  -ms-appearance: none;
+  appearance: none;
+}
+
+ul {
+  list-style-type: none;
+}
+
+.button {
+  background-color: #98c593;
+  border: 0;
+  border-radius: 3.5em;
+  color: #fff;
+  cursor: pointer;
+  display: inline-block;
+  height: 3.5em;
+  line-height: 3.5em;
+  outline: 0;
+  padding: 0 2em 0 2em;
+  position: relative;
+  text-align: center;
+  text-decoration: none;
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  -o-appearance: none;
+  -ms-appearance: none;
+  appearance: none;
 }

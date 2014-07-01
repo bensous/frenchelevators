@@ -72,14 +72,15 @@ require(['BigVideo', 'state-machine', 'modernizr'], function(bigvideo, StateMach
 
       events: [
 
-        { name: 'clickmenu',  from: ['*'],              to: 'menu'  },
-        { name: 'clickprod',  from: ['*'],              to: 'prod'  },
-        { name: 'clickteam',  from: ['*'],              to: 'team'  },
-        { name: 'clickabout', from: ['*'],              to: 'about' },
-        { name: 'clicklang',  from: ['none'],           to: 'about' },
-        { name: 'clickben',   from: ['team'],           to: 'ben'   },
-        { name: 'clickmarco', from: ['team'],           to: 'marco' },
-        { name: 'clickback',  from: ['marco', 'ben'],   to: 'team'  },
+        { name: 'clickmenu',    from: ['*'],            to: 'menu'    },
+        { name: 'clickprod',    from: ['*'],            to: 'prod'    },
+        { name: 'clickteam',    from: ['*'],            to: 'team'    },
+        { name: 'clickabout',   from: ['*'],            to: 'about'   },
+        { name: 'clickcontact', from: ['*'],            to: 'contact' },
+        { name: 'clicklang',    from: ['none'],         to: 'about'   },
+        { name: 'clickben',     from: ['team'],         to: 'ben'     },
+        { name: 'clickmarco',   from: ['team'],         to: 'marco'   },
+        { name: 'clickback',    from: ['marco', 'ben'], to: 'team'    },
 
       ],
 
@@ -106,6 +107,17 @@ require(['BigVideo', 'state-machine', 'modernizr'], function(bigvideo, StateMach
           //play();
         },
 
+        onentercontact:      function (event, from, to) {
+          $('#contact-page').hide().removeClass('hidden').fadeIn(600);
+          $('#video-mask').hide().removeClass('hidden').fadeIn(600);
+          pause();
+        },
+        onleavecontact:      function (event, from, to) {
+          $('#contact-page').fadeOut(600).hide().addClass('hidden');
+          $('#video-mask').fadeOut(600).hide().addClass('hidden');
+          play();
+        },
+
         onenterteam: function (event, from, to) {
           if (from != 'ben' && from != 'marco' ) {
           
@@ -117,7 +129,7 @@ require(['BigVideo', 'state-machine', 'modernizr'], function(bigvideo, StateMach
             transition('fecine-elevator-nothingloop');
           }
         },
-        onteam:      function (event, from, to) {
+        onleaveteam:      function (event, from, to) {
           console.log('team');
         },
 
