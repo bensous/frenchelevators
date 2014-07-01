@@ -99,7 +99,7 @@ require(['BigVideo', 'state-machine', 'modernizr'], function(bigvideo, StateMach
           $('#production-page').hide().removeClass('hidden').fadeIn(600);
           //$('#video-mask').hide().removeClass('hidden').fadeIn(600);
           //pause();
-          play('fe-oldfilmwhite');
+          play('fe-oldfilmblack');
         },
         onleaveprod:      function (event, from, to) {
           $('#production-page').fadeOut(600).hide().addClass('hidden');

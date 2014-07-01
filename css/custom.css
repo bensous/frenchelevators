@@ -92,8 +92,12 @@ body {
   text-shadow: 2px 2px 2px #000000;
   color: rgba(255,255,255,0.95) !important;
   text-align: center;
-  font-size: 3rem;
-  padding: 4rem 2rem;
+  font-size: 2.5rem;
+  padding: 3rem 2rem 2rem 0rem;
+}
+
+.navbar-nav>li:last-of-type {
+  padding-right: 3rem;
 }
 
 .nametag {
