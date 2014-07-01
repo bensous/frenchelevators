@@ -37,6 +37,23 @@ require(['BigVideo', 'state-machine', 'modernizr'], function(bigvideo, StateMach
       });
     }
 
+    toggle_navbar = function (lang) {
+
+      // Sets the document language.
+      document.documentElement.lang = lang;
+      
+      // Fades out the logo with the french navbar sliding from top.
+      $('#splash').fadeOut(1000, function () {
+        $('#navbar-' + lang ).show().animate({top: 0}, 800);
+      });
+    }
+
+    toggle_video = function () {
+      
+      // Fades in the video once it is ready. hides the flickering in the beginning.
+      $('#big-video-wrap').hide().ready(function () { $('#big-video-wrap').fadeIn(1200) });
+    }
+
     pause = function () {
       BV.getPlayer().pause();
     }
@@ -62,7 +79,7 @@ require(['BigVideo', 'state-machine', 'modernizr'], function(bigvideo, StateMach
       show(name);
     }
 
-    transition = function (name) {
+    queue = function (name) {
 
       BV.getPlayer().one("ended", function () {show(name);});
     }
@@ -77,7 +94,8 @@ require(['BigVideo', 'state-machine', 'modernizr'], function(bigvideo, StateMach
         { name: 'clickteam',    from: ['*'],            to: 'team'    },
         { name: 'clickabout',   from: ['*'],            to: 'about'   },
         { name: 'clickcontact', from: ['*'],            to: 'contact' },
-        { name: 'clicklang',    from: ['none'],         to: 'about'   },
+        { name: 'clicklangfr',  from: ['none'],         to: 'about'   },
+        { name: 'clicklangen',  from: ['none'],         to: 'about'   },
         { name: 'clickben',     from: ['team'],         to: 'ben'     },
         { name: 'clickmarco',   from: ['team'],         to: 'marco'   },
         { name: 'clickback',    from: ['marco', 'ben'], to: 'team'    },
@@ -85,9 +103,13 @@ require(['BigVideo', 'state-machine', 'modernizr'], function(bigvideo, StateMach
       ],
 
       callbacks: {
-        onclicklang: function (event, from, to) {
-          // Fades in the video once it is ready. hides the flickering in the beginning.
-          $('#big-video-wrap').hide().ready(function () { $('#big-video-wrap').fadeIn(1200) });
+        onclicklangfr: function (event, from, to) {
+          toggle_navbar("fr");
+          toggle_video();
+        },
+        onclicklangen: function (event, from, to) {
+          toggle_navbar("en");
+          toggle_video();
         },
 
 
@@ -97,14 +119,10 @@ require(['BigVideo', 'state-machine', 'modernizr'], function(bigvideo, StateMach
 
         onenterprod:      function (event, from, to) {
           $('#production-page').hide().removeClass('hidden').fadeIn(600);
-          //$('#video-mask').hide().removeClass('hidden').fadeIn(600);
-          //pause();
           play('fe-oldfilmblack');
         },
         onleaveprod:      function (event, from, to) {
           $('#production-page').fadeOut(600).hide().addClass('hidden');
-          //$('#video-mask').fadeOut(600).hide().addClass('hidden');
-          //play();
         },
 
         onentercontact:      function (event, from, to) {
@@ -126,7 +144,7 @@ require(['BigVideo', 'state-machine', 'modernizr'], function(bigvideo, StateMach
           
           } else {
           
-            transition('fecine-elevator-nothingloop');
+            queue('fecine-elevator-nothingloop');
           }
         },
         onleaveteam:      function (event, from, to) {
@@ -142,7 +160,7 @@ require(['BigVideo', 'state-machine', 'modernizr'], function(bigvideo, StateMach
         /* Handles MARCO related events */
         onentermarco: function (event, from, to) {
           play('fecine-elevator-nothing2marco');
-          transition('fecine-elevator-marcoloop');
+          queue('fecine-elevator-marcoloop');
         },
         onleavemarco:  function (event, from, to) {
           play('fecine-elevator-marco2nothing');
@@ -152,7 +170,7 @@ require(['BigVideo', 'state-machine', 'modernizr'], function(bigvideo, StateMach
         /* Handles BEN related events */
         onenterben:   function (event, from, to) {
           play('fecine-elevator-nothing2ben');
-          transition('fecine-elevator-benloop');
+          queue('fecine-elevator-benloop');
         },
         onleaveben:    function (event, from, to) {
           console.log('playback: leaving ben.');
@@ -173,41 +191,4 @@ require(['BigVideo', 'state-machine', 'modernizr'], function(bigvideo, StateMach
     return fsm;
 
   }();
-
-  $(function() {
-
-      $( document ).ready(function() {
-
-        $('.bv-ctrl').on('click', function(e) {
-
-          switch (this.id) {
-
-            case 'btn-fr':
-              e.preventDefault();
-
-              // Fades out the logo with the french navbar sliding from top.
-              document.documentElement.lang = "fr";
-              $('#splash').fadeOut(1000, function () {
-                $('#navbar-fr').show().animate({top: 0}, 800);
-              });
-              break;
-
-            case 'btn-en':
-              e.preventDefault();
-
-              // Fades out the logo with the english navbar sliding from top.
-              document.documentElement.lang = "en";
-              $('#splash').fadeOut(1000, function () {
-                $('#navbar-en').show().animate({top: 0}, 800);
-              });
-              break;
-
-            default:
-              console.log('no action set for ' + this.id);
-          };
-
-        });
-
-      });
-  });
 });
