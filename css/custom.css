@@ -28,10 +28,6 @@ body {
   width: 100%;
 }
 
-#small-logo {
-  height:7rem;
-}
-
 .big-btn {
   font-size: 7rem;
   margin: 2rem;
@@ -69,8 +65,14 @@ body {
 
 /* OVERIDING BOOTSTRAP DEFAULT NAVBAR */
 
+#small-logo {
+  height:10rem;
+}
+
 .navbar {
   border: none;
+  height: 10rem;
+  background-color: rgba(0,0,0,0);
 }
 
 .navbar-brand {
@@ -78,21 +80,20 @@ body {
   padding-left: 15px;
 }
 
-.navbar-fixed-top {
-  background-color: rgba(0,0,0,0);
-  height: 7rem;
+.navbar-offset {
+  margin-top: 10rem;
 }
 
 .navbar-hidden {
-  top: -70px;
+  top: -10rem;
 }
 
 .navbar-nav>li>a {
   text-shadow: 2px 2px 2px #000000;
   color: rgba(255,255,255,0.95) !important;
   text-align: center;
-  font-size: 2rem;
-  padding: 2.5rem 1.8rem;
+  font-size: 3rem;
+  padding: 4rem 2rem;
 }
 
 .nametag {
