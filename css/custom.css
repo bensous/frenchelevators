@@ -168,6 +168,12 @@ body {
   left: 42%;
 }
 
+.fit-vids-style {
+  width: 100%;
+}
+
+/* SOME PROD BULLSHIT */
+
 .pellicule {
   background-position: 50% 50%;
   background-repeat: no-repeat;

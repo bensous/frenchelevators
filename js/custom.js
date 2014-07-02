@@ -8,11 +8,17 @@ require.config({
         "eventEmitter/EventEmitter": "bower_components/eventEmitter/EventEmitter",
         "eventie/eventie": "bower_components/eventie/eventie",
         "modernizr": "bower_components/modernizr/modernizr",
-        "state-machine": "bower_components/javascript-state-machine/state-machine"
+        "state-machine": "bower_components/javascript-state-machine/state-machine",
+        "fitvids": "bower_components/fitvids/jquery.fitvids"
     },
     shim: {
         "videojs": {exports: 'videojs'}
     }
+});
+
+require(['jquery', 'fitvids'], function(FitVids) {
+  $(".fluid-width-video-wrapper").fitVids();
+
 });
 
 require(['BigVideo', 'state-machine', 'modernizr'], function(bigvideo, StateMachine, modernizr) {
