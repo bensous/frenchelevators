@@ -100,8 +100,25 @@ body {
   padding-right: 3rem;
 }
 
+/* MOFO ABOUT PAGE */
+
+.about-title {
+  background: rgba(250,250,250,0.60);
+  font-size: 2.2rem;
+  width: 75%;
+}
+
+.about-description {
+  background: rgba(0,0,0,0.80);
+  color: rgba(250,250,250,0.60);
+}
+
+.about {
+  padding: .5rem;
+}
 
 /* TEAM PAGE PART */
+
 .nametag {
   color: rgba(250,250,250,0.60);
   background: rgba(0,0,0,0.80);
@@ -129,13 +146,13 @@ body {
 
 .left {
   position: absolute;
-  margin-top: 20%;
+  margin-top: 10%;
   left: 1rem;
 }
 
 .right {
   position: absolute;
-  margin-top: 20%;
+  margin-top: 10%;
   right: 1rem;
 }
 
