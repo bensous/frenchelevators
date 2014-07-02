@@ -168,6 +168,12 @@ body {
   left: 42%;
 }
 
+.no-horizontal-padding {
+  padding-right: 0;
+  padding-left: 0;
+}
+
+
 /* SOME PROD BULLSHIT */
 
 .pellicule {
@@ -177,7 +183,7 @@ body {
   width: 100%;
 }
 
-.gradient {
+.gradient-top {
   background: -moz-linear-gradient(top, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%); /* FF3.6+ */
   background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(255,255,255,1)), color-stop(100%,rgba(255,255,255,0))); /* Chrome,Safari4+ */
   background: -webkit-linear-gradient(top, rgba(255,255,255,1) 0%,rgba(255,255,255,0) 100%); /* Chrome10+,Safari5.1+ */
