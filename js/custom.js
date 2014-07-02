@@ -152,8 +152,12 @@ require(['BigVideo', 'state-machine', 'modernizr'], function(bigvideo, StateMach
         },
 
 
-        onabout: function (event, from, to) {
+        onenterabout: function (event, from, to) {
+          $('#about-page').hide().removeClass('hidden').fadeIn(600);
           play('fecine-forestloop');
+        },
+        onleaveabout:      function (event, from, to) {
+          $('#about-page').fadeOut(600).hide().addClass('hidden');
         },
 
 
