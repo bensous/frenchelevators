@@ -24,13 +24,22 @@ body {
 
 #big-logo {
   margin-top: 5%;
-  max-width: 469px;
+  /*max-width: 469px;*/
   width: 100%;
 }
 
+a:hover, a:focus {
+  background-color: #fcfcfc;
+  text-decoration: none;
+  color: black;
+}
+
+a {
+  color: #fcfcfc;
+}
+
 .big-btn {
-  font-size: 7rem;
-  margin: 2rem;
+  font-size: 3rem;
 }
 
 /* Handles Video Player behaviour
