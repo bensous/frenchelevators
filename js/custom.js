@@ -27,6 +27,7 @@ require(['BigVideo', 'state-machine', 'modernizr'], function(bigvideo, StateMach
   BV.init();
   // BV.show('./videos/fecine-elevator-nothingloop.webmhd.webm',{ambient:true});
   // BV.getPlayer().on("ended", function () {console.log('playback: video ended')});
+  BV.getPlayer().on("ready", function () {console.log('playback: video is playing !')});
 
   BG = function() {
 
@@ -75,7 +76,7 @@ require(['BigVideo', 'state-machine', 'modernizr'], function(bigvideo, StateMach
       }
 
       if (callback instanceof Function) {
-        callback();
+        BV.getPlayer().one("play", function () {calback});
       }
     }
 
@@ -158,7 +159,6 @@ require(['BigVideo', 'state-machine', 'modernizr'], function(bigvideo, StateMach
           }
         },
         onleaveteam:      function (event, from, to) {
-          console.log('team');
         },
 
 
