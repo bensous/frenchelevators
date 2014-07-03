@@ -1,5 +1,5 @@
 preview:
-	rsync --exclude '.git' --exclude '*node_modules*' -ave ssh . clabzcom@c4labz.com:~/public_html/frenchelevators/
+	rsync --exclude '.git' --exclude '*node_modules*' -pave ssh . clabzcom@c4labz.com:~/public_html/frenchelevators/
 
 screenshot:
 	echo `date` >> ./ffmpeg.log
