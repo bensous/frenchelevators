@@ -36,10 +36,21 @@ require(['BigVideo', 'state-machine', 'modernizr'], function(bigvideo, StateMach
       $('.hideable').each(function( i ) {
         
         // Hides the element if it does not belong to the state
+        if ( !$(this).hasClass(fsm.current) ) {
+          $(this).fadeOut(300).addClass('hidden').hide();
+        }
+      });
+    }
+
+    handle_showing = function () {
+
+      // Shows the element if it belongs to the state
+      $('.hideable').each(function( i ) {
+        
         if ( $(this).hasClass(fsm.current) ) {
-          $(this).fadeIn(800);
+          $(this).hide().removeClass('hidden').fadeIn(800);
         } else {
-          $(this).fadeOut(300);
+          // console.log($(this).attr('id') + ' does not belong to ' + fsm.current);
         }
       });
     }
@@ -50,7 +61,7 @@ require(['BigVideo', 'state-machine', 'modernizr'], function(bigvideo, StateMach
       document.documentElement.lang = lang;
       
       // Fades out the logo with the french navbar sliding from top.
-      $('#splash').fadeOut(1000, function () {
+      $('#splash').fadeOut(600, function () {
         $('#navbar-' + lang ).show().animate({top: 0}, 800);
       });
     }
@@ -72,18 +83,18 @@ require(['BigVideo', 'state-machine', 'modernizr'], function(bigvideo, StateMach
         BV.show('./videos/' + name + '.mp4.jpg');
       } else {
       // BV.show('./videos/fecine-elevator-nothingloop.webmhd.webm',{altSource:'./videos/fecine-elevator-nothingloop.mp4',ambient:true});
-        BV.show('./videos/' + name + '.webmhd.webm',{altSource:'./videos/' + name + '.mp4', ambient:true});
+        BV.show('./videos/' + name + '.webmhd.webm', {altSource:'./videos/' + name + '.mp4', ambient:true});
       }
 
       if (callback instanceof Function) {
-        BV.getPlayer().one("play", function () {calback});
+        BV.getPlayer().one("play", callback);
       }
     }
 
     play = function (name, callback) {
 
       if (!name) {
-        BV.getPlayer().pause();
+        BV.getPlayer().play();
         return;
       }
 
@@ -100,7 +111,6 @@ require(['BigVideo', 'state-machine', 'modernizr'], function(bigvideo, StateMach
 
       events: [
 
-        { name: 'clickmenu',    from: ['*'],            to: 'menu'    },
         { name: 'clickprod',    from: ['*'],            to: 'prod'    },
         { name: 'clickteam',    from: ['*'],            to: 'team'    },
         { name: 'clickabout',   from: ['*'],            to: 'about'   },
@@ -124,57 +134,49 @@ require(['BigVideo', 'state-machine', 'modernizr'], function(bigvideo, StateMach
         },
 
 
-        onmenu:      function (event, from, to) {
-          play('fecine-forestloop');
+        onenterabout: function (event, from, to) {
+          play('fecine-forestloop', handle_showing);
         },
+        onleaveabout:      function (event, from, to) {
+        },
+
 
         onenterprod:      function (event, from, to) {
-          $('#production-page').hide().removeClass('hidden').fadeIn(600);
-          play('fe-oldfilmblack');
+          play('fe-oldfilmblack', handle_showing);
         },
         onleaveprod:      function (event, from, to) {
-          $('#production-page').fadeOut(600).hide().addClass('hidden');
         },
 
+
         onentercontact:      function (event, from, to) {
-          $('#contact-page').hide().removeClass('hidden').fadeIn(600);
           $('#video-mask').hide().removeClass('hidden').fadeIn(600);
           pause();
+          handle_showing();
         },
         onleavecontact:      function (event, from, to) {
-          $('#contact-page').fadeOut(600).hide().addClass('hidden');
           $('#video-mask').fadeOut(600).hide().addClass('hidden');
           play();
         },
 
+
         onenterteam: function (event, from, to) {
           if (from != 'ben' && from != 'marco' ) {
           
-            play('fecine-elevator-nothingloop');
-            $('#team-page').removeClass('hidden').hide().fadeIn(600);
-          
+            play('fecine-elevator-nothingloop', handle_showing);
+            
           } else {
           
-            queue('fecine-elevator-nothingloop');
+            queue('fecine-elevator-nothingloop', handle_showing);
           }
         },
         onleaveteam:      function (event, from, to) {
         },
 
 
-        onenterabout: function (event, from, to) {
-          $('#about-page').hide().removeClass('hidden').fadeIn(600);
-          play('fecine-forestloop');
-        },
-        onleaveabout:      function (event, from, to) {
-          $('#about-page').fadeOut(600).hide().addClass('hidden');
-        },
-
-
         /* Handles MARCO related events */
         onentermarco: function (event, from, to) {
           play('fecine-elevator-nothing2marco');
-          queue('fecine-elevator-marcoloop');
+          queue('fecine-elevator-marcoloop', handle_showing);
         },
         onleavemarco:  function (event, from, to) {
           play('fecine-elevator-marco2nothing');
@@ -184,7 +186,7 @@ require(['BigVideo', 'state-machine', 'modernizr'], function(bigvideo, StateMach
         /* Handles BEN related events */
         onenterben:   function (event, from, to) {
           play('fecine-elevator-nothing2ben');
-          queue('fecine-elevator-benloop');
+          queue('fecine-elevator-benloop', handle_showing);
         },
         onleaveben:    function (event, from, to) {
           console.log('playback: leaving ben.');
@@ -195,9 +197,7 @@ require(['BigVideo', 'state-machine', 'modernizr'], function(bigvideo, StateMach
         onchangestate: function(event, from, to) {
           console.log("CHANGED STATE: " + from + " to " + to);
           
-          if (from != 'none') {
             handle_hiding();
-          }
         }
       }
     });
