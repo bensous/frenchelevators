@@ -37,7 +37,7 @@ require(['BigVideo', 'state-machine', 'modernizr'], function(bigvideo, StateMach
         
         // Hides the element if it does not belong to the state
         if ( !$(this).hasClass(fsm.current) ) {
-          $(this).fadeOut(300).addClass('hidden').hide();
+          $(this).fadeOut(500).addClass('hidden').hide();
         }
       });
     }
@@ -69,7 +69,7 @@ require(['BigVideo', 'state-machine', 'modernizr'], function(bigvideo, StateMach
     toggle_video = function () {
       
       // Fades in the video once it is ready. hides the flickering in the beginning.
-      $('#big-video-wrap').hide().ready(function () { $('#big-video-wrap').fadeIn(1200) });
+      $('#big-video-wrap').hide().ready(function () { $('#big-video-wrap').fadeIn(600); handle_showing(); });
     }
 
     pause = function () {
@@ -126,16 +126,19 @@ require(['BigVideo', 'state-machine', 'modernizr'], function(bigvideo, StateMach
       callbacks: {
         onclicklangfr: function (event, from, to) {
           toggle_navbar("fr");
-          toggle_video();
         },
         onclicklangen: function (event, from, to) {
           toggle_navbar("en");
-          toggle_video();
         },
 
 
         onenterabout: function (event, from, to) {
-          play('fecine-forestloop', handle_showing);
+          if (from == 'none') {
+            toggle_video();
+            play('fecine-forestloop');
+          } else {
+            play('fecine-forestloop', handle_showing);
+          }
         },
         onleaveabout:      function (event, from, to) {
         },
