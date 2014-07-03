@@ -64,7 +64,7 @@ require(['BigVideo', 'state-machine', 'modernizr'], function(bigvideo, StateMach
       BV.getPlayer().pause();
     }
 
-    show = function (name) {
+    show = function (name, callback) {
 
       if (Modernizr.touch) {
         // If it is a touch device, just shows a picture, does not play the video
@@ -73,21 +73,25 @@ require(['BigVideo', 'state-machine', 'modernizr'], function(bigvideo, StateMach
       // BV.show('./videos/fecine-elevator-nothingloop.webmhd.webm',{altSource:'./videos/fecine-elevator-nothingloop.mp4',ambient:true});
         BV.show('./videos/' + name + '.webmhd.webm',{altSource:'./videos/' + name + '.mp4', ambient:true});
       }
+
+      if (callback instanceof Function) {
+        callback();
+      }
     }
 
-    play = function (name) {
+    play = function (name, callback) {
 
       if (!name) {
         BV.getPlayer().pause();
         return;
       }
 
-      show(name);
+      show(name, callback);
     }
 
-    queue = function (name) {
+    queue = function (name, callback) {
 
-      BV.getPlayer().one("ended", function () {show(name);});
+      BV.getPlayer().one("ended", function () {show(name, callback);});
     }
 
 
