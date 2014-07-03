@@ -129,17 +129,12 @@ a {
 /* TEAM PAGE PART */
 
 .nametag {
-  color: rgba(250,250,250,0.60);
-  background: rgba(0,0,0,0.80);
-  display: inline-block;
-  padding: 1.5rem 3rem;
-  margin-top: 7rem;
-  font-size: 5rem;
+  color: #fcfcfc;
+  font-size: 1.8rem;
 }
 
 #btn-team-back {
   color: rgba(250,250,250,0.60);
-  /*background: rgba(0,0,0,0.80);*/
   display: inline-block;
   padding: 1rem;
   font-size: 2rem;
@@ -147,34 +142,9 @@ a {
 
 .description {
   color: rgba(250,250,250,0.90);
-  /*background: rgba(0,0,0,0.80);*/
   display: inline-block;
   padding: 2rem 1.5rem;
   font-size: 2rem;
-}
-
-.left {
-  position: absolute;
-  margin-top: 10%;
-  left: 1rem;
-}
-
-.right {
-  position: absolute;
-  margin-top: 10%;
-  right: 1rem;
-}
-
-.middle-left {
-  position: absolute;
-  margin-top: 10%;
-  left: 15%;
-}
-
-.middle-right {
-  position: absolute;
-  margin-top: 10%;
-  left: 42%;
 }
 
 .no-horizontal-padding {
