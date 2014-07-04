@@ -1,15 +1,16 @@
 require.config({
+    baseUrl: 'bower_components',
     paths: {
-        "BigVideo": "bower_components/BigVideo.js/lib/bigvideo",
-        "jquery": "bower_components/jquery/dist/jquery.min",
-        "jquery-ui": "bower_components/jquery-ui/jquery-ui.min",
-        "videojs": "bower_components/video.js/dist/video-js/video",
-        "imagesloaded": "bower_components/imagesloaded/imagesloaded",
-        "eventEmitter/EventEmitter": "bower_components/eventEmitter/EventEmitter",
-        "eventie/eventie": "bower_components/eventie/eventie",
-        "modernizr": "bower_components/modernizr/modernizr",
-        "state-machine": "bower_components/javascript-state-machine/state-machine",
-        "fitvids": "bower_components/fitvids/jquery.fitvids"
+        "BigVideo": "BigVideo.js/lib/bigvideo",
+        "jquery": "jquery/dist/jquery.min",
+        "jquery-ui": "jquery-ui/jquery-ui.min",
+        "videojs": "video.js/dist/video-js/video",
+        "imagesloaded": "imagesloaded/imagesloaded",
+        "eventEmitter/EventEmitter": "eventEmitter/EventEmitter",
+        "eventie/eventie": "eventie/eventie",
+        "modernizr": "modernizr/modernizr",
+        "state-machine": "javascript-state-machine/state-machine",
+        "fitvids": "fitvids/jquery.fitvids"
     },
     shim: {
         "videojs": {exports: 'videojs'}
