@@ -28,13 +28,13 @@ body {
 }
 
 a:hover, a:focus {
-  background-color: #fcfcfc;
+  background-color: #DFD5D5;
   text-decoration: none;
-  color: black;
+  color: rgba(0,0,0,.8);
 }
 
 a {
-  color: #fcfcfc;
+  color: #DFD5D5;
 }
 
 .big-btn {
