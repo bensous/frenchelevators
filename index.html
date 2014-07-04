@@ -71,7 +71,7 @@
             <img id="big-logo" class="col-sm-12" src="./images/felogowebsite-shadow.png" alt=""><br>
             <div class="big-btn col-sm-offset-5 col-sm-7">
               <a id="btn-en" href="#navbar-en" class="big-btn" onclick="BG.clicklangen();">ENGLISH</a>
-              <a href="#" class="big-btn no-horizontal-padding">|</a>
+              <a href="#" class="big-btn no-padding-x">|</a>
               <a id="btn-fr" href="#navbar-fr" class="big-btn" onclick="BG.clicklangfr();">FRANÇAIS</a>
             </div>
           </div>
@@ -97,22 +97,24 @@
           
           <div class="col-xs-offset-4 col-xs-4">
           
-            <div style="margin-top:30%;"></div>
+            <div class="hideable team" style="margin-top:35%;"></div>
           
-            <div id="btn-benjamin" class="col-xs-offset-1 col-xs-5 nametag left hideable team" onclick="BG.clickben();">
-              <div class="col-xs-1 no-horizontal-padding" style="font-size:4rem;text-align:right;">|</div>
-              <a class="col-xs-11 no-horizontal-padding" href="#ben" style="text-align:left;">BENJAMIN<br>BENSOUSSAN</a>
-            </div>
+            <a id="btn-benjamin" href="#ben" class="col-xs-offset-2 col-xs-4 nametag left hideable team" onclick="BG.clickben();">
+              <div style="text-align:left;border-left:solid #DFD5D5;padding-left:0.3rem;">BENJAMIN<br>BENSOUSSAN</div>
+            </a>
           
-            <div id="btn-marc-antoine" class="col-xs-5 hideable nametag right team" onclick="BG.clickmarco();">
-              <a class="col-xs-11 no-horizontal-padding" href="#marco" style="text-align:right;">MARC-ANTOINE<br>LEGAULT</a>
-              <div class="col-xs-1 no-horizontal-padding" style="font-size:4rem;text-align:left;">|</div>
-            </div>
+            <a id="btn-marc-antoine" href="#marco" class="col-xs-5 hideable nametag right team" onclick="BG.clickmarco();">
+              <div style="text-align:right;border-right:solid #DFD5D5;padding-right:0.3rem;">MARC-ANTOINE<br>LEGAULT</div>
+            </a>
           
           </div>
             
           <div class="col-md-offset-5 col-md-4 col-sm-offset-5 col-sm-4">
             <div class="col-md-12 description text-center hideable ben">
+
+              <div class="col-xs-12">
+                <div id="btn-team-back" class="col-xs-2" style="text-align:left;" onclick="BG.clickback();">X</div>
+              </div>
 
               <div class="col-md-12 fluid-width-video-wrapper" style="padding-top: 56.25%;">
                 <iframe src="https://player.vimeo.com/video/97428427" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
@@ -124,30 +126,29 @@
               
               <p> <i class="icon-linked-in col-md-3"></i>lkd</p>
 
-              <div id="btn-team-back" class="col-md-2" onclick="BG.clickback();">X</div>
             </div>
           </div>
             
-            <div class="col-sm-offset-2 col-sm-4 col-xs-offset-1 col-xs-5">
-              <div class="col-md-12 description text-center hideable marco">
-                
-                <div class="col-xs-12">
-                  <div id="btn-team-back" class="col-xs-offset-10 col-xs-2" style="text-align:right;" onclick="BG.clickback();">X</div>
-                </div>
-
-                <div class="col-xs-12 fluid-width-video-wrapper" style="padding-top: 56.25%;">
-                  <iframe src="https://player.vimeo.com/video/97428427" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
-                </div>
-                
-                <p class="col-md-7 col-xs-10" style="text-align:right;">MARC-ANTOINE<br>LEGAULT</p>
-                
-                <p class="col-md-2 col-xs-2 no-horizontal-padding" style="font-size:4rem;">|</p>
-                
-                <p> <i class="icon-linked-in col-md-3"></i>lkd</p>
-
+          <div class="col-sm-offset-2 col-sm-4 col-xs-offset-1 col-xs-5">
+            <div class="col-md-12 description text-center hideable marco">
+              
+              <div class="col-xs-12">
+                <div id="btn-team-back" class="col-xs-offset-10 col-xs-2" style="text-align:right;" onclick="BG.clickback();">X</div>
               </div>
 
+              <div class="col-xs-12 fluid-width-video-wrapper" style="padding-top: 56.25%;">
+                <iframe src="https://player.vimeo.com/video/97428427" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+              </div>
+              
+              <p class="col-md-7 col-xs-10" style="text-align:right;">MARC-ANTOINE<br>LEGAULT</p>
+              
+              <p class="col-md-2 col-xs-2 no-padding-x" style="font-size:4rem;">|</p>
+              
+              <p> <i class="icon-linked-in col-md-3"></i>lkd</p>
+
             </div>
+
+          </div>
   
         </div>
 

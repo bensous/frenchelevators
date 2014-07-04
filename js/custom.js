@@ -17,7 +17,7 @@ require.config({
     }
 });
 
-require(['jquery', 'jquery-ui', 'fitvids'], function(FitVids) {
+require(['jquery', 'jquery-ui', 'fitvids'], function(jquery, jqueryui, FitVids) {
   $(".fluid-width-video-wrapper").fitVids();
 
 });
