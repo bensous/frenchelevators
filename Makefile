@@ -10,7 +10,7 @@ ifeq ($(OS),Ubuntu)
 	xargs -0 -n1 -I% avconv -i %  -r  1  -t  1 %.jpg
 else
 	find ./videos/ -iname '*.mp4' -print0 | \
-	xargs -0 -n1 -I% avconv -i %  -r  1  -t  1 %.jpg
+	xargs -0 -n1 -I% ffmpeg -i %  -r  1  -t  1 %.jpg
 endif
 
 opt-png:
