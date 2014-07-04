@@ -62,7 +62,7 @@ a {
   top:0 !important;
 }
 
-#big-video-img {
+#big-video-image {
   top:0 !important;
 }
 
@@ -148,6 +148,18 @@ a {
   display: inline-block;
   padding: 2rem 1.5rem;
   font-size: 2rem;
+}
+
+.right-border {
+  text-align:right;
+  border-right:solid #DFD5D5;
+  padding-right:0.5rem;
+}
+
+.left-border {
+  text-align:left;
+  border-left:solid #DFD5D5;
+  padding-left:0.5rem;
 }
 
 .no-padding-x {
