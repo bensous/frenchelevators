@@ -28,7 +28,7 @@ require(['BigVideo', 'state-machine', 'modernizr'], function(bigvideo, StateMach
   BV.init();
   // BV.show('./videos/fecine-elevator-nothingloop.webmhd.webm',{ambient:true});
   // BV.getPlayer().on("ended", function () {console.log('playback: video ended')});
-  BV.getPlayer().on("ready", function () {console.log('playback: video is playing !')});
+  // BV.getPlayer().on("ready", function () {console.log('playback: video is playing !')});
 
   BG = function() {
 
@@ -70,7 +70,7 @@ require(['BigVideo', 'state-machine', 'modernizr'], function(bigvideo, StateMach
     toggle_video = function () {
       
       // Fades in the video once it is ready. hides the flickering in the beginning.
-      $('#big-video-wrap').hide().ready(function () { $('#big-video-wrap').fadeIn(600); handle_showing(); });
+      $('#big-video-wrap').hide().ready(function () { $('#big-video-wrap').fadeIn(600, handle_showing); });
     }
 
     pause = function () {
@@ -83,8 +83,17 @@ require(['BigVideo', 'state-machine', 'modernizr'], function(bigvideo, StateMach
         // If it is a touch device, just shows a picture, does not play the video
         BV.show('./videos/' + name + '.mp4.jpg');
       } else {
-      // BV.show('./videos/fecine-elevator-nothingloop.webmhd.webm',{altSource:'./videos/fecine-elevator-nothingloop.mp4',ambient:true});
-        BV.show('./videos/' + name + '.webmhd.webm', {altSource:'./videos/' + name + '.mp4', ambient:true});
+        
+        shouldFade = !(name.indexOf("fecine-elevator") > -1) && !(name.indexOf("fecine-elevator-nothingloop") > -1);
+
+        if (shouldFade) {$('#big-video-wrap').hide();};
+        
+        // BV.show('./videos/fecine-elevator-nothingloop.webmhd.webm',{altSource:'./videos/fecine-elevator-nothingloop.mp4',ambient:true});
+        BV.show('./videos/' + name + '.webmhd.webm', {altSource:'./videos/' + name + '.mp4', ambient:true, doLoop:true});
+        
+        if (shouldFade) {$('#big-video-wrap').ready(function () { $('#big-video-wrap').fadeIn(800); }); };
+        
+        console.log("BV.show('./videos/" + name + ".webmhd.webm');");
       }
 
       if (callback instanceof Function) {
@@ -153,9 +162,10 @@ require(['BigVideo', 'state-machine', 'modernizr'], function(bigvideo, StateMach
 
 
         onentercontact:      function (event, from, to) {
-          $('#video-mask').hide().removeClass('hidden').fadeIn(600);
-          pause();
-          handle_showing();
+          $('#video-mask').hide().removeClass('hidden').fadeIn(600, function () {
+            pause();
+            handle_showing();
+          });
         },
         onleavecontact:      function (event, from, to) {
           $('#video-mask').fadeOut(600).hide().addClass('hidden');
@@ -193,7 +203,6 @@ require(['BigVideo', 'state-machine', 'modernizr'], function(bigvideo, StateMach
           queue('fecine-elevator-benloop', handle_showing);
         },
         onleaveben:    function (event, from, to) {
-          console.log('playback: leaving ben.');
           play('fecine-elevator-ben2nothing');
         },
 
