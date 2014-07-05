@@ -65,7 +65,7 @@
       <div class="container-fluid">
 
         <!-- Splash -->
-        <div id="splash" class="row page">
+        <div id="splash" class="row-fluid page">
 
           <div class="col-sm-offset-4 col-sm-4">
             <img id="big-logo" class="col-sm-12" src="./images/felogowebsite-shadow.png" alt=""><br>
@@ -79,7 +79,7 @@
         </div>
 
         <!-- About -->
-        <div id="about-page" class="row page hideable about hidden">
+        <div id="about-page" class="row-fluid page hideable about hidden">
 
           <div class="navbar-offset"></div>
           
@@ -91,7 +91,7 @@
         </div>
 
         <!-- The Team -->
-        <div id="team-page" class="row page hideable team ben marco hidden">
+        <div id="team-page" class="row-fluid page hideable team ben marco hidden">
           
           <div class="navbar-offset"></div>
           
@@ -155,85 +155,84 @@
   
         </div>
 
+        <!-- Production -->
+        <div id="production-page" class="page container hideable prod hidden">
 
-      </div>
+          <div class="row">
+            <div class="col-md-offset-2 col-md-8">
 
-      <!-- Production -->
-      
-      <div id="production-page" class="page container hideable prod hidden">
-
-        <div class="row">
-          <div class="col-md-offset-2 col-md-8">
-
-            <div class="row">
-              <div class="visible-xs visible-sm navbar-offset"></div>
-              <div class="col-sm-offset-1 col-sm-5 hidden-xs hidden-sm">
-                <img class="pellicule gradient" src="./images/pellicule.png">
-              </div>
-            </div>
-
-            <div class="row">
-
-              <div class="col-sm-offset-1 col-sm-5 vcenter">
-                <img class="pellicule" src="./images/pellicule.png" style="background-image:url('./images/thumbnail-snowblind.jpg');">
-              </div><!--
-              
-              --><div class="col-sm-4 vcenter" style="padding:1rem;">
-                <h3>SNOWBLIND <i><small>// Short Movie</small></i></h3>
-                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-              </div>
-            
-            </div>
-
-            <div class="row">
-
-              <div class="col-sm-offset-1 col-sm-5 vcenter">
-                <img class="pellicule" src="./images/pellicule.png" style="background-image:url('./images/thumbnail-liftoff.jpg');">
-              </div><!-- 
-
-              --><div class="col-sm-4 vcenter" style="padding:1rem;">
-                <h3>LIFTOFF <i><small>// Video Clip</small></i></h3>
-                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-              </div>
-
-            </div>
-
-            <div class="row">
-              <div class="col-sm-offset-1 col-sm-5 hidden-xs hidden-sm">
-                <img class="pellicule" src="./images/pellicule.png">
-              </div>
-            </div>
-
-            <div class="gradient top"></div>
-            <div class="gradient bottom"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Contact Form-->
-      <div id="contact-page" class="page container hideable contact hidden">
-        
-        <div class="row">
-          <div class="col-md-offset-3 col-md-6 navbar-offset">
-
-            <form method="post" action="#">
               <div class="row">
-
-                <div class="col-md-6"><input type="text" name="name" placeholder="Name"></div>
-                <div class="col-md-6"><input type="text" name="email" placeholder="Email"></div>
-              </div>
-              <div class="row">
-                <div class="col-md-12"><textarea name="message" placeholder="Message" rows="6"></textarea></div>
-              </div>
-              <div class="row">
-                <div class="col-md-12">
-                  <ul class="actions text-center">
-                    <li><input type="submit" class="button" value="Send Message"></li>
-                  </ul>
+                <div class="visible-xs visible-sm navbar-offset"></div>
+                <div class="col-sm-offset-1 col-sm-5 hidden-xs hidden-sm">
+                  <img class="pellicule gradient" src="./images/pellicule.png">
                 </div>
               </div>
-            </form>
+
+              <div class="row">
+
+                <div class="col-sm-offset-1 col-sm-5 vcenter">
+                  <img class="pellicule" src="./images/pellicule.png" style="background-image:url('./images/thumbnail-snowblind.jpg');">
+                </div><!--
+                
+                --><div class="col-sm-4 vcenter" style="padding:1rem;">
+                  <h3>SNOWBLIND <i><small>// Short Movie</small></i></h3>
+                  <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                </div>
+              
+              </div>
+
+              <div class="row">
+
+                <div class="col-sm-offset-1 col-sm-5 vcenter">
+                  <img class="pellicule" src="./images/pellicule.png" style="background-image:url('./images/thumbnail-liftoff.jpg');">
+                </div><!-- 
+
+                --><div class="col-sm-4 vcenter" style="padding:1rem;">
+                  <h3>LIFTOFF <i><small>// Video Clip</small></i></h3>
+                  <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                </div>
+
+              </div>
+
+              <div class="row">
+                <div class="col-sm-offset-1 col-sm-5 hidden-xs hidden-sm">
+                  <img class="pellicule" src="./images/pellicule.png">
+                </div>
+              </div>
+
+              <div class="gradient top"></div>
+              <div class="gradient bottom"></div>
+            </div>
           </div>
+  
+        </div>
+
+        <!-- Contact Form-->
+        <div id="contact-page" class="page container hideable contact hidden">
+          
+          <div class="row">
+            <div class="col-md-offset-3 col-md-6 navbar-offset">
+
+              <form method="post" action="#">
+                <div class="row">
+
+                  <div class="col-md-6"><input type="text" name="name" placeholder="Name"></div>
+                  <div class="col-md-6"><input type="text" name="email" placeholder="Email"></div>
+                </div>
+                <div class="row">
+                  <div class="col-md-12"><textarea name="message" placeholder="Message" rows="6"></textarea></div>
+                </div>
+                <div class="row">
+                  <div class="col-md-12">
+                    <ul class="actions text-center">
+                      <li><input type="submit" class="button" value="Send Message"></li>
+                    </ul>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+  
         </div>
 
       </div>
