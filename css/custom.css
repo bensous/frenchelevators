@@ -1,5 +1,4 @@
 * {
-  font-family: "Chau Philomene One", "Source Sans Pro", Times, serif;
 }
 
 #header {
@@ -30,10 +29,11 @@ body {
 a:hover, a:focus {
   background-color: #DFD5D5;
   text-decoration: none;
-  color: rgba(0,0,0,.8);
+  color: rgba(0,0,0,.6);
 }
 
 a {
+  font-family: "Chau Philomene One", "Source Sans Pro", Times, serif;
   color: #DFD5D5;
 }
 
