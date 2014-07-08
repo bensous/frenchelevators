@@ -16,6 +16,7 @@ require.config({
     shim: {
         "videojs": {exports: "videojs"},
         "fitvids": ["jquery"],
+        "BigVideo": ["jquery"],
     }
 });
 
