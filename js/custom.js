@@ -10,14 +10,16 @@ require.config({
         "eventie/eventie": "eventie/eventie",
         "modernizr": "modernizr/modernizr",
         "state-machine": "javascript-state-machine/state-machine",
-        "fitvids": "fitvids/jquery.fitvids"
+        "fitvids": "fitvids/jquery.fitvids",
+        "bootstrap": "//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min",
     },
     shim: {
-        "videojs": {exports: 'videojs'}
+        "videojs": {exports: "videojs"},
+        "fitvids": ["jquery"],
     }
 });
 
-require(['jquery', 'jquery-ui', 'fitvids'], function(jquery, jqueryui, FitVids) {
+require(['fitvids'], function(FitVids) {
   $(".fluid-width-video-wrapper").fitVids();
 
 });
