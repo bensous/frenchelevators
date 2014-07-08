@@ -53,10 +53,11 @@ require(['BigVideo', 'state-machine', 'modernizr'], function(bigvideo, StateMach
         
         if ( $(this).hasClass(fsm.current) ) {
           $(this).hide().removeClass('hidden').fadeIn(800);
-        } else {
-          // console.log($(this).attr('id') + ' does not belong to ' + fsm.current);
         }
+
       });
+      
+      console.log('handle_showing: end.');
     }
 
     toggle_navbar = function (lang) {
@@ -100,7 +101,12 @@ require(['BigVideo', 'state-machine', 'modernizr'], function(bigvideo, StateMach
       }
 
       if (callback instanceof Function) {
-        BV.getPlayer().one("play", callback);
+
+        if (Modernizr.touch) {
+          callback();
+        } else {
+          BV.getPlayer().one("play", callback);
+        }
       }
     }
 
