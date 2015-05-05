@@ -8,19 +8,19 @@ vjs.VolumeMenuButton = vjs.MenuButton.extend({
     vjs.MenuButton.call(this, player, options);
 
     // Same listeners as MuteToggle
-    player.on('volumechange', vjs.bind(this, this.update));
+    this.on(player, 'volumechange', this.volumeUpdate);
 
     // hide mute toggle if the current tech doesn't support volume control
-    if (player.tech && player.tech.features && player.tech.features.volumeControl === false) {
+    if (player.tech && player.tech['featuresVolumeControl'] === false) {
       this.addClass('vjs-hidden');
     }
-    player.on('loadstart', vjs.bind(this, function(){
-      if (player.tech.features && player.tech.features.volumeControl === false) {
+    this.on(player, 'loadstart', function(){
+      if (player.tech['featuresVolumeControl'] === false) {
         this.addClass('vjs-hidden');
       } else {
         this.removeClass('vjs-hidden');
       }
-    }));
+    });
     this.addClass('vjs-menu-button');
   }
 });
@@ -29,7 +29,13 @@ vjs.VolumeMenuButton.prototype.createMenu = function(){
   var menu = new vjs.Menu(this.player_, {
     contentElType: 'div'
   });
-  var vc = new vjs.VolumeBar(this.player_, vjs.obj.merge({vertical: true}, this.options_.volumeBar));
+  var vc = new vjs.VolumeBar(this.player_, this.options_['volumeBar']);
+  vc.on('focus', function() {
+    menu.lockShowing();
+  });
+  vc.on('blur', function() {
+    menu.unlockShowing();
+  });
   menu.addChild(vc);
   return menu;
 };
@@ -42,7 +48,7 @@ vjs.VolumeMenuButton.prototype.onClick = function(){
 vjs.VolumeMenuButton.prototype.createEl = function(){
   return vjs.Button.prototype.createEl.call(this, 'div', {
     className: 'vjs-volume-menu-button vjs-menu-button vjs-control',
-    innerHTML: '<div><span class="vjs-control-text">Mute</span></div>'
+    innerHTML: '<div><span class="vjs-control-text">' + this.localize('Mute') + '</span></div>'
   });
 };
-vjs.VolumeMenuButton.prototype.update = vjs.MuteToggle.prototype.update;
+vjs.VolumeMenuButton.prototype.volumeUpdate = vjs.MuteToggle.prototype.update;

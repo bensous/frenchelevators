@@ -1,3 +1,5 @@
+(function() {
+  var createTrackHelper;
 /**
  * @fileoverview Media Technology Controller - Base class for media playback
  * technology controllers like Flash and HTML5
@@ -18,7 +20,23 @@ vjs.MediaTechController = vjs.Component.extend({
     options.reportTouchActivity = false;
     vjs.Component.call(this, player, options, ready);
 
+    // Manually track progress in cases where the browser/flash player doesn't report it.
+    if (!this['featuresProgressEvents']) {
+      this.manualProgressOn();
+    }
+
+    // Manually track timeupdates in cases where the browser/flash player doesn't report it.
+    if (!this['featuresTimeupdateEvents']) {
+      this.manualTimeUpdatesOn();
+    }
+
     this.initControlsListeners();
+
+    if (!this['featuresNativeTextTracks']) {
+      this.emulateTextTracks();
+    }
+
+    this.initTextTrackListeners();
   }
 });
 
@@ -43,24 +61,32 @@ vjs.MediaTechController = vjs.Component.extend({
  * any controls will still keep the user active
  */
 vjs.MediaTechController.prototype.initControlsListeners = function(){
-  var player, tech, activateControls, deactivateControls;
+  var player, activateControls;
 
-  tech = this;
   player = this.player();
 
-  var activateControls = function(){
+  activateControls = function(){
     if (player.controls() && !player.usingNativeControls()) {
-      tech.addControlsListeners();
+      this.addControlsListeners();
     }
   };
-
-  deactivateControls = vjs.bind(tech, tech.removeControlsListeners);
 
   // Set up event listeners once the tech is ready and has an element to apply
   // listeners to
   this.ready(activateControls);
-  player.on('controlsenabled', activateControls);
-  player.on('controlsdisabled', deactivateControls);
+  this.on(player, 'controlsenabled', activateControls);
+  this.on(player, 'controlsdisabled', this.removeControlsListeners);
+
+  // if we're loading the playback object after it has started loading or playing the
+  // video (often with autoplay on) then the loadstart event has already fired and we
+  // need to fire it manually because many things rely on it.
+  // Long term we might consider how we would do this for other events like 'canplay'
+  // that may also have fired.
+  this.ready(function(){
+    if (this.networkState && this.networkState() > 0) {
+      this.player().trigger('loadstart');
+    }
+  });
 };
 
 vjs.MediaTechController.prototype.addControlsListeners = function(){
@@ -76,8 +102,6 @@ vjs.MediaTechController.prototype.addControlsListeners = function(){
   // so we'll check if the controls were already showing before reporting user
   // activity
   this.on('touchstart', function(event) {
-    // Stop the mouse events from also happening
-    event.preventDefault();
     userWasActive = this.player_.userActive();
   });
 
@@ -85,6 +109,11 @@ vjs.MediaTechController.prototype.addControlsListeners = function(){
     if (userWasActive){
       this.player().reportUserActivity();
     }
+  });
+
+  this.on('touchend', function(event) {
+    // Stop the mouse events from also happening
+    event.preventDefault();
   });
 
   // Turn on component tap events
@@ -139,6 +168,234 @@ vjs.MediaTechController.prototype.onTap = function(){
   this.player().userActive(!this.player().userActive());
 };
 
+/* Fallbacks for unsupported event types
+================================================================================ */
+// Manually trigger progress events based on changes to the buffered amount
+// Many flash players and older HTML5 browsers don't send progress or progress-like events
+vjs.MediaTechController.prototype.manualProgressOn = function(){
+  this.manualProgress = true;
+
+  // Trigger progress watching when a source begins loading
+  this.trackProgress();
+};
+
+vjs.MediaTechController.prototype.manualProgressOff = function(){
+  this.manualProgress = false;
+  this.stopTrackingProgress();
+};
+
+vjs.MediaTechController.prototype.trackProgress = function(){
+  this.progressInterval = this.setInterval(function(){
+    // Don't trigger unless buffered amount is greater than last time
+
+    var bufferedPercent = this.player().bufferedPercent();
+
+    if (this.bufferedPercent_ != bufferedPercent) {
+      this.player().trigger('progress');
+    }
+
+    this.bufferedPercent_ = bufferedPercent;
+
+    if (bufferedPercent === 1) {
+      this.stopTrackingProgress();
+    }
+  }, 500);
+};
+vjs.MediaTechController.prototype.stopTrackingProgress = function(){ this.clearInterval(this.progressInterval); };
+
+/*! Time Tracking -------------------------------------------------------------- */
+vjs.MediaTechController.prototype.manualTimeUpdatesOn = function(){
+  var player = this.player_;
+
+  this.manualTimeUpdates = true;
+
+  this.on(player, 'play', this.trackCurrentTime);
+  this.on(player, 'pause', this.stopTrackingCurrentTime);
+  // timeupdate is also called by .currentTime whenever current time is set
+
+  // Watch for native timeupdate event
+  this.one('timeupdate', function(){
+    // Update known progress support for this playback technology
+    this['featuresTimeupdateEvents'] = true;
+    // Turn off manual progress tracking
+    this.manualTimeUpdatesOff();
+  });
+};
+
+vjs.MediaTechController.prototype.manualTimeUpdatesOff = function(){
+  var player = this.player_;
+
+  this.manualTimeUpdates = false;
+  this.stopTrackingCurrentTime();
+  this.off(player, 'play', this.trackCurrentTime);
+  this.off(player, 'pause', this.stopTrackingCurrentTime);
+};
+
+vjs.MediaTechController.prototype.trackCurrentTime = function(){
+  if (this.currentTimeInterval) { this.stopTrackingCurrentTime(); }
+  this.currentTimeInterval = this.setInterval(function(){
+    this.player().trigger('timeupdate');
+  }, 250); // 42 = 24 fps // 250 is what Webkit uses // FF uses 15
+};
+
+// Turn off play progress tracking (when paused or dragging)
+vjs.MediaTechController.prototype.stopTrackingCurrentTime = function(){
+  this.clearInterval(this.currentTimeInterval);
+
+  // #1002 - if the video ends right before the next timeupdate would happen,
+  // the progress bar won't make it all the way to the end
+  this.player().trigger('timeupdate');
+};
+
+vjs.MediaTechController.prototype.dispose = function() {
+  // Turn off any manual progress or timeupdate tracking
+  if (this.manualProgress) { this.manualProgressOff(); }
+
+  if (this.manualTimeUpdates) { this.manualTimeUpdatesOff(); }
+
+  vjs.Component.prototype.dispose.call(this);
+};
+
+vjs.MediaTechController.prototype.setCurrentTime = function() {
+  // improve the accuracy of manual timeupdates
+  if (this.manualTimeUpdates) { this.player().trigger('timeupdate'); }
+};
+
+// TODO: Consider looking at moving this into the text track display directly
+// https://github.com/videojs/video.js/issues/1863
+vjs.MediaTechController.prototype.initTextTrackListeners = function() {
+  var player = this.player_,
+      tracks,
+      textTrackListChanges = function() {
+        var textTrackDisplay = player.getChild('textTrackDisplay'),
+            controlBar;
+
+        if (textTrackDisplay) {
+          textTrackDisplay.updateDisplay();
+        }
+      };
+
+  tracks = this.textTracks();
+
+  if (!tracks) {
+    return;
+  }
+
+  tracks.addEventListener('removetrack', textTrackListChanges);
+  tracks.addEventListener('addtrack', textTrackListChanges);
+
+  this.on('dispose', vjs.bind(this, function() {
+    tracks.removeEventListener('removetrack', textTrackListChanges);
+    tracks.removeEventListener('addtrack', textTrackListChanges);
+  }));
+};
+
+vjs.MediaTechController.prototype.emulateTextTracks = function() {
+  var player = this.player_,
+      textTracksChanges,
+      tracks,
+      script;
+
+  if (!window['WebVTT']) {
+    script = document.createElement('script');
+    script.src = player.options()['vtt.js'] || '../node_modules/vtt.js/dist/vtt.js';
+    player.el().appendChild(script);
+    window['WebVTT'] = true;
+  }
+
+  tracks = this.textTracks();
+  if (!tracks) {
+    return;
+  }
+
+  textTracksChanges = function() {
+    var i, track, textTrackDisplay;
+
+    textTrackDisplay = player.getChild('textTrackDisplay'),
+
+    textTrackDisplay.updateDisplay();
+
+    for (i = 0; i < this.length; i++) {
+      track = this[i];
+      track.removeEventListener('cuechange', vjs.bind(textTrackDisplay, textTrackDisplay.updateDisplay));
+      if (track.mode === 'showing') {
+        track.addEventListener('cuechange', vjs.bind(textTrackDisplay, textTrackDisplay.updateDisplay));
+      }
+    }
+  };
+
+  tracks.addEventListener('change', textTracksChanges);
+
+  this.on('dispose', vjs.bind(this, function() {
+    tracks.removeEventListener('change', textTracksChanges);
+  }));
+};
+
+/**
+ * Provide default methods for text tracks.
+ *
+ * Html5 tech overrides these.
+ */
+
+/**
+ * List of associated text tracks
+ * @type {Array}
+ * @private
+ */
+vjs.MediaTechController.prototype.textTracks_;
+
+vjs.MediaTechController.prototype.textTracks = function() {
+  this.player_.textTracks_ = this.player_.textTracks_ || new vjs.TextTrackList();
+  return this.player_.textTracks_;
+};
+
+vjs.MediaTechController.prototype.remoteTextTracks = function() {
+  this.player_.remoteTextTracks_ = this.player_.remoteTextTracks_ || new vjs.TextTrackList();
+  return this.player_.remoteTextTracks_;
+};
+
+createTrackHelper = function(self, kind, label, language, options) {
+  var tracks = self.textTracks(),
+      track;
+
+  options = options || {};
+
+  options['kind'] = kind;
+  if (label) {
+    options['label'] = label;
+  }
+  if (language) {
+    options['language'] = language;
+  }
+  options['player'] = self.player_;
+
+  track = new vjs.TextTrack(options);
+  tracks.addTrack_(track);
+
+  return track;
+};
+
+vjs.MediaTechController.prototype.addTextTrack = function(kind, label, language) {
+  if (!kind) {
+    throw new Error('TextTrack kind is required but was not provided');
+  }
+
+  return createTrackHelper(this, kind, label, language);
+};
+
+vjs.MediaTechController.prototype.addRemoteTextTrack = function(options) {
+  var track = createTrackHelper(this, options['kind'], options['label'], options['language'], options);
+  this.remoteTextTracks().addTrack_(track);
+  return {
+    track: track
+  };
+};
+
+vjs.MediaTechController.prototype.removeRemoteTextTrack = function(track) {
+  this.textTracks().removeTrack_(track);
+  this.remoteTextTracks().removeTrack_(track);
+};
+
 /**
  * Provide a default setPoster method for techs
  *
@@ -147,35 +404,130 @@ vjs.MediaTechController.prototype.onTap = function(){
  */
 vjs.MediaTechController.prototype.setPoster = function(){};
 
-vjs.MediaTechController.prototype.features = {
-  'volumeControl': true,
+vjs.MediaTechController.prototype['featuresVolumeControl'] = true;
 
-  // Resizing plugins using request fullscreen reloads the plugin
-  'fullscreenResize': false,
-  'playbackRate': false,
+// Resizing plugins using request fullscreen reloads the plugin
+vjs.MediaTechController.prototype['featuresFullscreenResize'] = false;
+vjs.MediaTechController.prototype['featuresPlaybackRate'] = false;
 
-  // Optional events that we can manually mimic with timers
-  // currently not triggered by video-js-swf
-  'progressEvents': false,
-  'timeupdateEvents': false
+// Optional events that we can manually mimic with timers
+// currently not triggered by video-js-swf
+vjs.MediaTechController.prototype['featuresProgressEvents'] = false;
+vjs.MediaTechController.prototype['featuresTimeupdateEvents'] = false;
+
+vjs.MediaTechController.prototype['featuresNativeTextTracks'] = false;
+
+/**
+ * A functional mixin for techs that want to use the Source Handler pattern.
+ *
+ * ##### EXAMPLE:
+ *
+ *   videojs.MediaTechController.withSourceHandlers.call(MyTech);
+ *
+ */
+vjs.MediaTechController.withSourceHandlers = function(Tech){
+  /**
+   * Register a source handler
+   * Source handlers are scripts for handling specific formats.
+   * The source handler pattern is used for adaptive formats (HLS, DASH) that
+   * manually load video data and feed it into a Source Buffer (Media Source Extensions)
+   * @param  {Function} handler  The source handler
+   * @param  {Boolean}  first    Register it before any existing handlers
+   */
+  Tech.registerSourceHandler = function(handler, index){
+    var handlers = Tech.sourceHandlers;
+
+    if (!handlers) {
+      handlers = Tech.sourceHandlers = [];
+    }
+
+    if (index === undefined) {
+      // add to the end of the list
+      index = handlers.length;
+    }
+
+    handlers.splice(index, 0, handler);
+  };
+
+  /**
+   * Return the first source handler that supports the source
+   * TODO: Answer question: should 'probably' be prioritized over 'maybe'
+   * @param  {Object} source The source object
+   * @returns {Object}       The first source handler that supports the source
+   * @returns {null}         Null if no source handler is found
+   */
+  Tech.selectSourceHandler = function(source){
+    var handlers = Tech.sourceHandlers || [],
+        can;
+
+    for (var i = 0; i < handlers.length; i++) {
+      can = handlers[i].canHandleSource(source);
+
+      if (can) {
+        return handlers[i];
+      }
+    }
+
+    return null;
+  };
+
+  /**
+  * Check if the tech can support the given source
+  * @param  {Object} srcObj  The source object
+  * @return {String}         'probably', 'maybe', or '' (empty string)
+  */
+  Tech.canPlaySource = function(srcObj){
+    var sh = Tech.selectSourceHandler(srcObj);
+
+    if (sh) {
+      return sh.canHandleSource(srcObj);
+    }
+
+    return '';
+  };
+
+  /**
+   * Create a function for setting the source using a source object
+   * and source handlers.
+   * Should never be called unless a source handler was found.
+   * @param {Object} source  A source object with src and type keys
+   * @return {vjs.MediaTechController} self
+   */
+  Tech.prototype.setSource = function(source){
+    var sh = Tech.selectSourceHandler(source);
+
+    if (!sh) {
+      // Fall back to a native source hander when unsupported sources are
+      // deliberately set
+      if (Tech.nativeSourceHandler) {
+        sh = Tech.nativeSourceHandler;
+      } else {
+        vjs.log.error('No source hander found for the current source.');
+      }
+    }
+
+    // Dispose any existing source handler
+    this.disposeSourceHandler();
+    this.off('dispose', this.disposeSourceHandler);
+
+    this.currentSource_ = source;
+    this.sourceHandler_ = sh.handleSource(source, this);
+    this.on('dispose', this.disposeSourceHandler);
+
+    return this;
+  };
+
+  /**
+   * Clean up any existing source handler
+   */
+  Tech.prototype.disposeSourceHandler = function(){
+    if (this.sourceHandler_ && this.sourceHandler_.dispose) {
+      this.sourceHandler_.dispose();
+    }
+  };
+
 };
 
 vjs.media = {};
 
-/**
- * List of default API methods for any MediaTechController
- * @type {String}
- */
-vjs.media.ApiMethods = 'play,pause,paused,currentTime,setCurrentTime,duration,buffered,volume,setVolume,muted,setMuted,width,height,supportsFullScreen,enterFullScreen,src,load,currentSrc,preload,setPreload,autoplay,setAutoplay,loop,setLoop,error,networkState,readyState,seeking,initialTime,startOffsetTime,played,seekable,ended,videoTracks,audioTracks,videoWidth,videoHeight,textTracks,defaultPlaybackRate,playbackRate,mediaGroup,controller,controls,defaultMuted'.split(',');
-// Create placeholder methods for each that warn when a method isn't supported by the current playback technology
-
-function createMethod(methodName){
-  return function(){
-    throw new Error('The "'+methodName+'" method is not available on the playback technology\'s API');
-  };
-}
-
-for (var i = vjs.media.ApiMethods.length - 1; i >= 0; i--) {
-  var methodName = vjs.media.ApiMethods[i];
-  vjs.MediaTechController.prototype[vjs.media.ApiMethods[i]] = createMethod(methodName);
-}
+})();

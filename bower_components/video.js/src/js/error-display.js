@@ -9,7 +9,7 @@ vjs.ErrorDisplay = vjs.Component.extend({
     vjs.Component.call(this, player, options);
 
     this.update();
-    player.on('error', vjs.bind(this, this.update));
+    this.on(player, 'error', this.update);
   }
 });
 
@@ -26,6 +26,6 @@ vjs.ErrorDisplay.prototype.createEl = function(){
 
 vjs.ErrorDisplay.prototype.update = function(){
   if (this.player().error()) {
-    this.contentEl_.innerHTML = this.player().error().message;
+    this.contentEl_.innerHTML = this.localize(this.player().error().message);
   }
 };

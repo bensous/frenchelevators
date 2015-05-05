@@ -1,6 +1,6 @@
 {
-  "name": "state-machine",
-  "version": "2.3.0",
+  "name": "javascript-state-machine",
+  "version": "2.3.5",
   "homepage": "https://github.com/jakesgordon/javascript-state-machine",
   "authors": [
     "Jake Gordon <jake@codeincomplete.com>"
@@ -25,14 +25,13 @@
     "test",
     "tests"
   ],
-  "_release": "2.3.0",
+  "_release": "2.3.5",
   "_resolution": {
     "type": "version",
-    "tag": "2.3.0",
-    "commit": "b2b3846f18a0e42ccd89416a35f46ec8e07f2f9c"
+    "tag": "2.3.5",
+    "commit": "b5e3918837f4c6902ffa33346fcb6ec2e40962e2"
   },
   "_source": "git://github.com/jakesgordon/javascript-state-machine.git",
   "_target": "~2.3.0",
-  "_originalSource": "javascript-state-machine",
-  "_direct": true
+  "_originalSource": "javascript-state-machine"
 }

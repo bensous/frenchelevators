@@ -22,11 +22,8 @@ vjs.Slider = vjs.Component.extend({
     this.on('blur', this.onBlur);
     this.on('click', this.onClick);
 
-    this.player_.on('controlsvisible', vjs.bind(this, this.update));
-
-    player.on(this.playerEvent, vjs.bind(this, this.update));
-
-    this.boundEvents = {};
+    this.on(player, 'controlsvisible', this.update);
+    this.on(player, this.playerEvent, this.update);
   }
 });
 
@@ -48,24 +45,27 @@ vjs.Slider.prototype.createEl = function(type, props) {
 vjs.Slider.prototype.onMouseDown = function(event){
   event.preventDefault();
   vjs.blockTextSelection();
+  this.addClass('vjs-sliding');
 
-  this.boundEvents.move = vjs.bind(this, this.onMouseMove);
-  this.boundEvents.end = vjs.bind(this, this.onMouseUp);
-
-  vjs.on(document, 'mousemove', this.boundEvents.move);
-  vjs.on(document, 'mouseup', this.boundEvents.end);
-  vjs.on(document, 'touchmove', this.boundEvents.move);
-  vjs.on(document, 'touchend', this.boundEvents.end);
+  this.on(document, 'mousemove', this.onMouseMove);
+  this.on(document, 'mouseup', this.onMouseUp);
+  this.on(document, 'touchmove', this.onMouseMove);
+  this.on(document, 'touchend', this.onMouseUp);
 
   this.onMouseMove(event);
 };
 
+// To be overridden by a subclass
+vjs.Slider.prototype.onMouseMove = function(){};
+
 vjs.Slider.prototype.onMouseUp = function() {
   vjs.unblockTextSelection();
-  vjs.off(document, 'mousemove', this.boundEvents.move, false);
-  vjs.off(document, 'mouseup', this.boundEvents.end, false);
-  vjs.off(document, 'touchmove', this.boundEvents.move, false);
-  vjs.off(document, 'touchend', this.boundEvents.end, false);
+  this.removeClass('vjs-sliding');
+
+  this.off(document, 'mousemove', this.onMouseMove);
+  this.off(document, 'mouseup', this.onMouseUp);
+  this.off(document, 'touchmove', this.onMouseMove);
+  this.off(document, 'touchend', this.onMouseUp);
 
   this.update();
 };
@@ -85,7 +85,12 @@ vjs.Slider.prototype.update = function(){
       bar = this.bar;
 
   // Protect against no duration and other division issues
-  if (isNaN(progress)) { progress = 0; }
+  if (typeof progress !== 'number' ||
+      progress !== progress ||
+      progress < 0 ||
+      progress === Infinity) {
+        progress = 0;
+  }
 
   barProgress = progress;
 
@@ -117,7 +122,9 @@ vjs.Slider.prototype.update = function(){
   }
 
   // Set the new bar width
-  bar.el().style.width = vjs.round(barProgress * 100, 2) + '%';
+  if (bar) {
+    bar.el().style.width = vjs.round(barProgress * 100, 2) + '%';
+  }
 };
 
 vjs.Slider.prototype.calculateDistance = function(event){
@@ -128,7 +135,7 @@ vjs.Slider.prototype.calculateDistance = function(event){
   boxW = boxH = el.offsetWidth;
   handle = this.handle;
 
-  if (this.options_.vertical) {
+  if (this.options()['vertical']) {
     boxY = box.top;
 
     if (event.changedTouches) {
@@ -170,21 +177,21 @@ vjs.Slider.prototype.calculateDistance = function(event){
 };
 
 vjs.Slider.prototype.onFocus = function(){
-  vjs.on(document, 'keyup', vjs.bind(this, this.onKeyPress));
+  this.on(document, 'keydown', this.onKeyPress);
 };
 
 vjs.Slider.prototype.onKeyPress = function(event){
-  if (event.which == 37) { // Left Arrow
+  if (event.which == 37 || event.which == 40) { // Left and Down Arrows
     event.preventDefault();
     this.stepBack();
-  } else if (event.which == 39) { // Right Arrow
+  } else if (event.which == 38 || event.which == 39) { // Up and Right Arrows
     event.preventDefault();
     this.stepForward();
   }
 };
 
 vjs.Slider.prototype.onBlur = function(){
-  vjs.off(document, 'keyup', vjs.bind(this, this.onKeyPress));
+  this.off(document, 'keydown', this.onKeyPress);
 };
 
 /**

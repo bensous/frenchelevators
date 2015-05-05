@@ -1,5 +1,5 @@
 {
-  "name":            "state-machine",
+  "name":            "javascript-state-machine",
   "description":     "A simple finite state machine library",
   "homepage":        "https://github.com/jakesgordon/javascript-state-machine",
   "keywords":        ["state machine", "server", "client"],
@@ -9,5 +9,5 @@
   "devDependencies": {
     "qunit": "~0.6.2"
   },
-  "version":         "2.3.0"
+  "version":         "2.3.5"
 }

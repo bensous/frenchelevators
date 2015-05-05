@@ -88,7 +88,7 @@ or
 
 
 ### loop ###
-The loop attribute causes the video to start over as soon as it ends. This could be used for a visual affect like clouds in the background.
+The loop attribute causes the video to start over as soon as it ends. This could be used for a visual effect like clouds in the background.
 ```html
 <video loop ...>
 or
@@ -112,3 +112,42 @@ The height attribute sets the display height of the video.
 or
 { "height": 480 }
 ```
+
+Component Options
+-----------------
+
+You can set the options for any single player component. For instance, if you wanted to remove the `muteToggle` button, which
+is a child of `controlBar`, you can just set that component to false:
+
+```javascript
+var player = videojs('video-id', {
+  children: {
+    controlBar: {
+      children: {
+        muteToggle: false
+      }
+    }
+  }
+});
+```
+
+All the children can start getting a little verbose, so to simplify things, you can also set options for child components directly on the parent options.
+This is functionally the exact same as the above, for instance.
+
+```javascript
+var player = videojs('video-id', {
+  controlBar: {
+    muteToggle: false
+  }
+});
+```
+
+This also works using the `data-setup` attribute on the video element, just remember the options need to use proper JSON
+notation.
+
+```html
+<video ... data-setup='{ "children": { "controlBar": { "children": { "muteToggle": false } } } }'></video>
+```
+
+The [components guide](components.md) has an excellent breakdown of the structure of a player, you
+just need to remember to nest child components in a `children` object for each level.

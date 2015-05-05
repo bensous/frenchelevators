@@ -25,6 +25,7 @@ videojs.Player.prototype.canPlayType = function(){};
 videojs.Player.prototype.readyState = function(){};
 videojs.Player.prototype.seeking = function(){};
 videojs.Player.prototype.currentTime = function(){};
+videojs.Player.prototype.remainingTime = function(){};
 videojs.Player.prototype.startTime = function(){};
 videojs.Player.prototype.duration = function(){};
 videojs.Player.prototype.paused = function(){};
@@ -60,6 +61,13 @@ videojs.Player.prototype.cancelFullScreen = function(){}; /* deprecated */
  * Text tracks
  */
 videojs.Player.prototype.textTracks = function(){};
+videojs.Player.prototype.addTextTrack = function(){};
+
+/**
+ * Language support
+ */
+videojs.Player.prototype.language = function(){};
+videojs.Player.prototype.languages = function(){};
 
 /**
  * Component functions
@@ -81,3 +89,8 @@ videojs.Player.prototype.userActive = function(){};
  * Native controls
  */
 videojs.Player.prototype.usingNativeControls = function(){};
+
+/**
+ * Source selection
+ */
+videojs.Player.prototype.selectSource = function(){};

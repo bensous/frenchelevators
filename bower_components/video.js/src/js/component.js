@@ -47,8 +47,14 @@ vjs.Component = vjs.CoreObject.extend({
     // Updated options with supplied options
     options = this.options(options);
 
-    // Get ID from options, element, or create using player ID and unique ID
-    this.id_ = options['id'] || ((options['el'] && options['el']['id']) ? options['el']['id'] : player.id() + '_component_' + vjs.guid++ );
+    // Get ID from options or options element if one is supplied
+    this.id_ = options['id'] || (options['el'] && options['el']['id']);
+
+    // If there was no ID from the options, generate one
+    if (!this.id_) {
+      // Don't require the player ID function in the case of mock players
+      this.id_ = ((player.id && player.id()) || 'no_player') + '_component_' + vjs.guid++;
+    }
 
     this.name_ = options['name'] || null;
 
@@ -193,6 +199,15 @@ vjs.Component.prototype.el_;
  */
 vjs.Component.prototype.createEl = function(tagName, attributes){
   return vjs.createEl(tagName, attributes);
+};
+
+vjs.Component.prototype.localize = function(string){
+  var lang = this.player_.language(),
+      languages = this.player_.languages();
+  if (languages && languages[lang] && languages[lang][string]) {
+    return languages[lang][string];
+  }
+  return string;
 };
 
 /**
@@ -345,17 +360,17 @@ vjs.Component.prototype.getChild = function(name){
  * @suppress {accessControls|checkRegExp|checkTypes|checkVars|const|constantProperty|deprecated|duplicate|es5Strict|fileoverviewTags|globalThis|invalidCasts|missingProperties|nonStandardJsDocs|strictModuleDepCheck|undefinedNames|undefinedVars|unknownDefines|uselessCode|visibility}
  */
 vjs.Component.prototype.addChild = function(child, options){
-  var component, componentClass, componentName, componentId;
+  var component, componentClass, componentName;
 
-  // If string, create new component with options
+  // If child is a string, create new component with options
   if (typeof child === 'string') {
-
     componentName = child;
 
     // Make sure options is at least an empty object to protect against errors
     options = options || {};
 
-    // Assume name of set is a lowercased name of the UI Class (PlayButton, etc.)
+    // If no componentClass in options, assume componentClass is the name lowercased
+    // (e.g. playButton)
     componentClass = options['componentClass'] || vjs.capitalize(componentName);
 
     // Set name through options
@@ -420,8 +435,8 @@ vjs.Component.prototype.removeChild = function(component){
 
   if (!childFound) return;
 
-  this.childIndex_[component.id] = null;
-  this.childNameIndex_[component.name] = null;
+  this.childIndex_[component.id()] = null;
+  this.childNameIndex_[component.name()] = null;
 
   var compEl = component.el();
   if (compEl && compEl.parentNode === this.contentEl()) {
@@ -464,36 +479,51 @@ vjs.Component.prototype.removeChild = function(component){
  *
  */
 vjs.Component.prototype.initChildren = function(){
-  var parent, children, child, name, opts;
+  var parent, parentOptions, children, child, name, opts, handleAdd;
 
   parent = this;
-  children = this.options()['children'];
+  parentOptions = parent.options();
+  children = parentOptions['children'];
 
   if (children) {
+    handleAdd = function(name, opts){
+      // Allow options for children to be set at the parent options
+      // e.g. videojs(id, { controlBar: false });
+      // instead of videojs(id, { children: { controlBar: false });
+      if (parentOptions[name] !== undefined) {
+        opts = parentOptions[name];
+      }
+
+      // Allow for disabling default components
+      // e.g. vjs.options['children']['posterImage'] = false
+      if (opts === false) return;
+
+      // Create and add the child component.
+      // Add a direct reference to the child by name on the parent instance.
+      // If two of the same component are used, different names should be supplied
+      // for each
+      parent[name] = parent.addChild(name, opts);
+    };
+
     // Allow for an array of children details to passed in the options
-    if (children instanceof Array) {
+    if (vjs.obj.isArray(children)) {
       for (var i = 0; i < children.length; i++) {
         child = children[i];
 
         if (typeof child == 'string') {
+          // ['myComponent']
           name = child;
           opts = {};
         } else {
+          // [{ name: 'myComponent', otherOption: true }]
           name = child.name;
           opts = child;
         }
 
-        parent[name] = parent.addChild(name, opts);
+        handleAdd(name, opts);
       }
     } else {
-      vjs.obj.each(children, function(name, opts){
-        // Allow for disabling default components
-        // e.g. vjs.options['children']['posterImage'] = false
-        if (opts === false) return;
-
-        // Set property name on player. Could cause conflicts with other prop names, but it's worth making refs easy.
-        parent[name] = parent.addChild(name, opts);
-      });
+      vjs.obj.each(children, handleAdd);
     }
   }
 };
@@ -516,46 +546,169 @@ vjs.Component.prototype.buildCSSClass = function(){
  * Add an event listener to this component's element
  *
  *     var myFunc = function(){
- *       var myPlayer = this;
+ *       var myComponent = this;
  *       // Do something when the event is fired
  *     };
  *
- *     myPlayer.on("eventName", myFunc);
+ *     myComponent.on('eventType', myFunc);
  *
- * The context will be the component.
+ * The context of myFunc will be myComponent unless previously bound.
  *
- * @param  {String}   type The event type e.g. 'click'
- * @param  {Function} fn   The event listener
- * @return {vjs.Component} self
+ * Alternatively, you can add a listener to another element or component.
+ *
+ *     myComponent.on(otherElement, 'eventName', myFunc);
+ *     myComponent.on(otherComponent, 'eventName', myFunc);
+ *
+ * The benefit of using this over `vjs.on(otherElement, 'eventName', myFunc)`
+ * and `otherComponent.on('eventName', myFunc)` is that this way the listeners
+ * will be automatically cleaned up when either component is disposed.
+ * It will also bind myComponent as the context of myFunc.
+ *
+ * **NOTE**: When using this on elements in the page other than window
+ * and document (both permanent), if you remove the element from the DOM
+ * you need to call `vjs.trigger(el, 'dispose')` on it to clean up
+ * references to it and allow the browser to garbage collect it.
+ *
+ * @param  {String|vjs.Component} first   The event type or other component
+ * @param  {Function|String}      second  The event handler or event type
+ * @param  {Function}             third   The event handler
+ * @return {vjs.Component}        self
  */
-vjs.Component.prototype.on = function(type, fn){
-  vjs.on(this.el_, type, vjs.bind(this, fn));
+vjs.Component.prototype.on = function(first, second, third){
+  var target, type, fn, removeOnDispose, cleanRemover, thisComponent;
+
+  if (typeof first === 'string' || vjs.obj.isArray(first)) {
+    vjs.on(this.el_, first, vjs.bind(this, second));
+
+  // Targeting another component or element
+  } else {
+    target = first;
+    type = second;
+    fn = vjs.bind(this, third);
+    thisComponent = this;
+
+    // When this component is disposed, remove the listener from the other component
+    removeOnDispose = function(){
+      thisComponent.off(target, type, fn);
+    };
+    // Use the same function ID so we can remove it later it using the ID
+    // of the original listener
+    removeOnDispose.guid = fn.guid;
+    this.on('dispose', removeOnDispose);
+
+    // If the other component is disposed first we need to clean the reference
+    // to the other component in this component's removeOnDispose listener
+    // Otherwise we create a memory leak.
+    cleanRemover = function(){
+      thisComponent.off('dispose', removeOnDispose);
+    };
+    // Add the same function ID so we can easily remove it later
+    cleanRemover.guid = fn.guid;
+
+    // Check if this is a DOM node
+    if (first.nodeName) {
+      // Add the listener to the other element
+      vjs.on(target, type, fn);
+      vjs.on(target, 'dispose', cleanRemover);
+
+    // Should be a component
+    // Not using `instanceof vjs.Component` because it makes mock players difficult
+    } else if (typeof first.on === 'function') {
+      // Add the listener to the other component
+      target.on(type, fn);
+      target.on('dispose', cleanRemover);
+    }
+  }
+
   return this;
 };
 
 /**
- * Remove an event listener from the component's element
+ * Remove an event listener from this component's element
  *
- *     myComponent.off("eventName", myFunc);
+ *     myComponent.off('eventType', myFunc);
  *
- * @param  {String=}   type Event type. Without type it will remove all listeners.
- * @param  {Function=} fn   Event listener. Without fn it will remove all listeners for a type.
+ * If myFunc is excluded, ALL listeners for the event type will be removed.
+ * If eventType is excluded, ALL listeners will be removed from the component.
+ *
+ * Alternatively you can use `off` to remove listeners that were added to other
+ * elements or components using `myComponent.on(otherComponent...`.
+ * In this case both the event type and listener function are REQUIRED.
+ *
+ *     myComponent.off(otherElement, 'eventType', myFunc);
+ *     myComponent.off(otherComponent, 'eventType', myFunc);
+ *
+ * @param  {String=|vjs.Component}  first  The event type or other component
+ * @param  {Function=|String}       second The listener function or event type
+ * @param  {Function=}              third  The listener for other component
  * @return {vjs.Component}
  */
-vjs.Component.prototype.off = function(type, fn){
-  vjs.off(this.el_, type, fn);
+vjs.Component.prototype.off = function(first, second, third){
+  var target, otherComponent, type, fn, otherEl;
+
+  if (!first || typeof first === 'string' || vjs.obj.isArray(first)) {
+    vjs.off(this.el_, first, second);
+  } else {
+    target = first;
+    type = second;
+    // Ensure there's at least a guid, even if the function hasn't been used
+    fn = vjs.bind(this, third);
+
+    // Remove the dispose listener on this component,
+    // which was given the same guid as the event listener
+    this.off('dispose', fn);
+
+    if (first.nodeName) {
+      // Remove the listener
+      vjs.off(target, type, fn);
+      // Remove the listener for cleaning the dispose listener
+      vjs.off(target, 'dispose', fn);
+    } else {
+      target.off(type, fn);
+      target.off('dispose', fn);
+    }
+  }
+
   return this;
 };
 
 /**
  * Add an event listener to be triggered only once and then removed
  *
- * @param  {String}   type Event type
- * @param  {Function} fn   Event listener
+ *     myComponent.one('eventName', myFunc);
+ *
+ * Alternatively you can add a listener to another element or component
+ * that will be triggered only once.
+ *
+ *     myComponent.one(otherElement, 'eventName', myFunc);
+ *     myComponent.one(otherComponent, 'eventName', myFunc);
+ *
+ * @param  {String|vjs.Component}  first   The event type or other component
+ * @param  {Function|String}       second  The listener function or event type
+ * @param  {Function=}             third   The listener function for other component
  * @return {vjs.Component}
  */
-vjs.Component.prototype.one = function(type, fn) {
-  vjs.one(this.el_, type, vjs.bind(this, fn));
+vjs.Component.prototype.one = function(first, second, third) {
+  var target, type, fn, thisComponent, newFunc;
+
+  if (typeof first === 'string' || vjs.obj.isArray(first)) {
+    vjs.one(this.el_, first, vjs.bind(this, second));
+  } else {
+    target = first;
+    type = second;
+    fn = vjs.bind(this, third);
+    thisComponent = this;
+
+    newFunc = function(){
+      thisComponent.off(target, type, newFunc);
+      fn.apply(this, arguments);
+    };
+    // Keep the same function ID so we can remove it later
+    newFunc.guid = fn.guid;
+
+    this.on(target, type, newFunc);
+  }
+
   return this;
 };
 
@@ -563,13 +716,13 @@ vjs.Component.prototype.one = function(type, fn) {
  * Trigger an event on an element
  *
  *     myComponent.trigger('eventName');
+ *     myComponent.trigger({'type':'eventName'});
  *
- * @param  {String}       type  The event type to trigger, e.g. 'click'
- * @param  {Event|Object} event The event object to be passed to the listener
- * @return {vjs.Component}      self
+ * @param  {Event|Object|String} event  A string (the type) or an event object with a type attribute
+ * @return {vjs.Component}       self
  */
-vjs.Component.prototype.trigger = function(type, event){
-  vjs.trigger(this.el_, type, event);
+vjs.Component.prototype.trigger = function(event){
+  vjs.trigger(this.el_, event);
   return this;
 };
 
@@ -589,7 +742,7 @@ vjs.Component.prototype.isReady_;
  *
  * Allows for delaying ready. Override on a sub class prototype.
  * If you set this.isReadyOnInitFinish_ it will affect all components.
- * Specially used when waiting for the Flash player to asynchrnously load.
+ * Specially used when waiting for the Flash player to asynchronously load.
  *
  * @type {Boolean}
  * @private
@@ -607,7 +760,7 @@ vjs.Component.prototype.readyQueue_;
 /**
  * Bind a listener to the component's ready state
  *
- * Different from event listeners in that if the ready event has already happend
+ * Different from event listeners in that if the ready event has already happened
  * it will trigger the function immediately.
  *
  * @param  {Function} fn Ready listener
@@ -655,6 +808,16 @@ vjs.Component.prototype.triggerReady = function(){
 ============================================================================= */
 
 /**
+ * Check if a component's element has a CSS class name
+ *
+ * @param {String} classToCheck Classname to check
+ * @return {vjs.Component}
+ */
+vjs.Component.prototype.hasClass = function(classToCheck){
+  return vjs.hasClass(this.el_, classToCheck);
+};
+
+/**
  * Add a CSS class name to the component's element
  *
  * @param {String} classToAdd Classname to add
@@ -682,7 +845,7 @@ vjs.Component.prototype.removeClass = function(classToRemove){
  * @return {vjs.Component}
  */
 vjs.Component.prototype.show = function(){
-  this.el_.style.display = 'block';
+  this.removeClass('vjs-hidden');
   return this;
 };
 
@@ -692,7 +855,7 @@ vjs.Component.prototype.show = function(){
  * @return {vjs.Component}
  */
 vjs.Component.prototype.hide = function(){
-  this.el_.style.display = 'none';
+  this.addClass('vjs-hidden');
   return this;
 };
 
@@ -723,7 +886,7 @@ vjs.Component.prototype.unlockShowing = function(){
 /**
  * Disable component by making it unshowable
  *
- * Currently private because we're movign towards more css-based states.
+ * Currently private because we're moving towards more css-based states.
  * @private
  */
 vjs.Component.prototype.disable = function(){
@@ -797,6 +960,9 @@ vjs.Component.prototype.dimensions = function(width, height){
  */
 vjs.Component.prototype.dimension = function(widthOrHeight, num, skipListeners){
   if (num !== undefined) {
+    if (num === null || vjs.isNaN(num)) {
+      num = 0;
+    }
 
     // Check if using css width/height (% or px) and adjust
     if ((''+num).indexOf('%') !== -1 || (''+num).indexOf('px') !== -1) {
@@ -858,26 +1024,30 @@ vjs.Component.prototype.onResize;
  *
  * This is used to support toggling the controls through a tap on the video.
  *
- * We're requireing them to be enabled because otherwise every component would
+ * We're requiring them to be enabled because otherwise every component would
  * have this extra overhead unnecessarily, on mobile devices where extra
  * overhead is especially bad.
  * @private
  */
 vjs.Component.prototype.emitTapEvents = function(){
   var touchStart, firstTouch, touchTime, couldBeTap, noTap,
-      xdiff, ydiff, touchDistance, tapMovementThreshold;
+      xdiff, ydiff, touchDistance, tapMovementThreshold, touchTimeThreshold;
 
   // Track the start time so we can determine how long the touch lasted
   touchStart = 0;
   firstTouch = null;
 
   // Maximum movement allowed during a touch event to still be considered a tap
-  tapMovementThreshold = 22;
+  // Other popular libs use anywhere from 2 (hammer.js) to 15, so 10 seems like a nice, round number.
+  tapMovementThreshold = 10;
+
+  // The maximum length a touch can be while still being considered a tap
+  touchTimeThreshold = 200;
 
   this.on('touchstart', function(event) {
     // If more than one finger, don't consider treating this as a click
     if (event.touches.length === 1) {
-      firstTouch = event.touches[0];
+      firstTouch = vjs.obj.copy(event.touches[0]);
       // Record start time so we can detect a tap vs. "touch and hold"
       touchStart = new Date().getTime();
       // Reset couldBeTap tracking
@@ -916,8 +1086,8 @@ vjs.Component.prototype.emitTapEvents = function(){
     if (couldBeTap === true) {
       // Measure how long the touch lasted
       touchTime = new Date().getTime() - touchStart;
-      // The touch needs to be quick in order to consider it a tap
-      if (touchTime < 250) {
+      // Make sure the touch was less than the threshold to be considered a tap
+      if (touchTime < touchTimeThreshold) {
         event.preventDefault(); // Don't let browser turn this into a click
         this.trigger('tap');
         // It may be good to copy the touchend event object and change the
@@ -954,6 +1124,11 @@ vjs.Component.prototype.emitTapEvents = function(){
 vjs.Component.prototype.enableTouchActivity = function() {
   var report, touchHolding, touchEnd;
 
+  // Don't continue if the root player doesn't support reporting user activity
+  if (!this.player().reportUserActivity) {
+    return;
+  }
+
   // listener for reporting that the user is active
   report = vjs.bind(this.player(), this.player().reportUserActivity);
 
@@ -962,15 +1137,15 @@ vjs.Component.prototype.enableTouchActivity = function() {
     // For as long as the they are touching the device or have their mouse down,
     // we consider them active even if they're not moving their finger or mouse.
     // So we want to continue to update that they are active
-    clearInterval(touchHolding);
+    this.clearInterval(touchHolding);
     // report at the same interval as activityCheck
-    touchHolding = setInterval(report, 250);
+    touchHolding = this.setInterval(report, 250);
   });
 
   touchEnd = function(event) {
     report();
     // stop the interval that maintains activity if the touch is holding
-    clearInterval(touchHolding);
+    this.clearInterval(touchHolding);
   };
 
   this.on('touchmove', report);
@@ -978,3 +1153,80 @@ vjs.Component.prototype.enableTouchActivity = function() {
   this.on('touchcancel', touchEnd);
 };
 
+/**
+ * Creates timeout and sets up disposal automatically.
+ * @param {Function} fn The function to run after the timeout.
+ * @param {Number} timeout Number of ms to delay before executing specified function.
+ * @return {Number} Returns the timeout ID
+ */
+vjs.Component.prototype.setTimeout = function(fn, timeout) {
+  fn = vjs.bind(this, fn);
+
+  // window.setTimeout would be preferable here, but due to some bizarre issue with Sinon and/or Phantomjs, we can't.
+  var timeoutId = setTimeout(fn, timeout);
+
+  var disposeFn = function() {
+    this.clearTimeout(timeoutId);
+  };
+
+  disposeFn.guid = 'vjs-timeout-'+ timeoutId;
+
+  this.on('dispose', disposeFn);
+
+  return timeoutId;
+};
+
+
+/**
+ * Clears a timeout and removes the associated dispose listener
+ * @param {Number} timeoutId The id of the timeout to clear
+ * @return {Number} Returns the timeout ID
+ */
+vjs.Component.prototype.clearTimeout = function(timeoutId) {
+  clearTimeout(timeoutId);
+
+  var disposeFn = function(){};
+  disposeFn.guid = 'vjs-timeout-'+ timeoutId;
+
+  this.off('dispose', disposeFn);
+
+  return timeoutId;
+};
+
+/**
+ * Creates an interval and sets up disposal automatically.
+ * @param {Function} fn The function to run every N seconds.
+ * @param {Number} interval Number of ms to delay before executing specified function.
+ * @return {Number} Returns the interval ID
+ */
+vjs.Component.prototype.setInterval = function(fn, interval) {
+  fn = vjs.bind(this, fn);
+
+  var intervalId = setInterval(fn, interval);
+
+  var disposeFn = function() {
+    this.clearInterval(intervalId);
+  };
+
+  disposeFn.guid = 'vjs-interval-'+ intervalId;
+
+  this.on('dispose', disposeFn);
+
+  return intervalId;
+};
+
+/**
+ * Clears an interval and removes the associated dispose listener
+ * @param {Number} intervalId The id of the interval to clear
+ * @return {Number} Returns the interval ID
+ */
+vjs.Component.prototype.clearInterval = function(intervalId) {
+  clearInterval(intervalId);
+
+  var disposeFn = function(){};
+  disposeFn.guid = 'vjs-interval-'+ intervalId;
+
+  this.off('dispose', disposeFn);
+
+  return intervalId;
+};

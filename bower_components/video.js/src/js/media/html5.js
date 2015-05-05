@@ -12,37 +12,62 @@
 vjs.Html5 = vjs.MediaTechController.extend({
   /** @constructor */
   init: function(player, options, ready){
-    // volume cannot be changed from 1 on iOS
-    this.features['volumeControl'] = vjs.Html5.canControlVolume();
+    var  nodes, nodesLength, i, node, nodeName, removeNodes;
 
-    // just in case; or is it excessively...
-    this.features['playbackRate'] = vjs.Html5.canControlPlaybackRate();
-
-    // In iOS, if you move a video element in the DOM, it breaks video playback.
-    this.features['movingMediaElementInDOM'] = !vjs.IS_IOS;
-
-    // HTML video is able to automatically resize when going to fullscreen
-    this.features['fullscreenResize'] = true;
+    if (options['nativeCaptions'] === false || options['nativeTextTracks'] === false) {
+      this['featuresNativeTextTracks'] = false;
+    }
 
     vjs.MediaTechController.call(this, player, options, ready);
+
     this.setupTriggers();
 
     var source = options['source'];
 
-    // If the element source is already set, we may have missed the loadstart event, and want to trigger it.
-    // We don't want to set the source again and interrupt playback.
-    if (source && this.el_.currentSrc === source.src && this.el_.networkState > 0) {
-      player.trigger('loadstart');
-    // Otherwise set the source if one was provided.
-    } else if (source) {
-      this.el_.src = source.src;
+    // Set the source if one is provided
+    // 1) Check if the source is new (if not, we want to keep the original so playback isn't interrupted)
+    // 2) Check to see if the network state of the tag was failed at init, and if so, reset the source
+    // anyway so the error gets fired.
+    if (source && (this.el_.currentSrc !== source.src || (player.tag && player.tag.initNetworkState_ === 3))) {
+      this.setSource(source);
+    }
+
+    if (this.el_.hasChildNodes()) {
+
+      nodes = this.el_.childNodes;
+      nodesLength = nodes.length;
+      removeNodes = [];
+
+      while (nodesLength--) {
+        node = nodes[nodesLength];
+        nodeName = node.nodeName.toLowerCase();
+        if (nodeName === 'track') {
+          if (!this['featuresNativeTextTracks']) {
+            // Empty video tag tracks so the built-in player doesn't use them also.
+            // This may not be fast enough to stop HTML5 browsers from reading the tags
+            // so we'll need to turn off any default tracks if we're manually doing
+            // captions and subtitles. videoElement.textTracks
+            removeNodes.push(node);
+          } else {
+            this.remoteTextTracks().addTrack_(node['track']);
+          }
+        }
+      }
+
+      for (i=0; i<removeNodes.length; i++) {
+        this.el_.removeChild(removeNodes[i]);
+      }
+    }
+
+    if (this['featuresNativeTextTracks']) {
+      this.on('loadstart', vjs.bind(this, this.hideCaptions));
     }
 
     // Determine if native controls should be used
     // Our goal should be to get the custom controls on mobile solid everywhere
     // so we can remove this all together. Right now this will block custom
     // controls on touch enabled laptops like the Chrome Pixel
-    if (vjs.TOUCH_ENABLED && player.options()['nativeControlsForTouch'] !== false) {
+    if (vjs.TOUCH_ENABLED && player.options()['nativeControlsForTouch'] === true) {
       this.useNativeControls();
     }
 
@@ -62,20 +87,25 @@ vjs.Html5 = vjs.MediaTechController.extend({
 });
 
 vjs.Html5.prototype.dispose = function(){
+  vjs.Html5.disposeMediaElement(this.el_);
   vjs.MediaTechController.prototype.dispose.call(this);
 };
 
 vjs.Html5.prototype.createEl = function(){
   var player = this.player_,
+      track,
+      trackEl,
+      i,
       // If possible, reuse original tag for HTML5 playback technology element
       el = player.tag,
+      attributes,
       newEl,
       clone;
 
   // Check if this browser supports moving the element into the box.
   // On the iPhone video will break if you move the element,
   // So we have to create a brand new element.
-  if (!el || this.features['movingMediaElementInDOM'] === false) {
+  if (!el || this['movingMediaElementInDOM'] === false) {
 
     // If the original tag is still there, clone and remove it.
     if (el) {
@@ -84,28 +114,74 @@ vjs.Html5.prototype.createEl = function(){
       el = clone;
       player.tag = null;
     } else {
-      el = vjs.createEl('video', {
-        id:player.id() + '_html5_api',
-        className:'vjs-tech'
-      });
+      el = vjs.createEl('video');
+
+      // determine if native controls should be used
+      attributes = videojs.util.mergeOptions({}, player.tagAttributes);
+      if (!vjs.TOUCH_ENABLED || player.options()['nativeControlsForTouch'] !== true) {
+        delete attributes.controls;
+      }
+
+      vjs.setElementAttributes(el,
+        vjs.obj.merge(attributes, {
+          id:player.id() + '_html5_api',
+          'class':'vjs-tech'
+        })
+      );
     }
     // associate the player with the new tag
     el['player'] = player;
+
+    if (player.options_.tracks) {
+      for (i = 0; i < player.options_.tracks.length; i++) {
+        track = player.options_.tracks[i];
+        trackEl = document.createElement('track');
+        trackEl.kind = track.kind;
+        trackEl.label = track.label;
+        trackEl.srclang = track.srclang;
+        trackEl.src = track.src;
+        if ('default' in track) {
+          trackEl.setAttribute('default', 'default');
+        }
+        el.appendChild(trackEl);
+      }
+    }
 
     vjs.insertFirst(el, player.el());
   }
 
   // Update specific tag settings, in case they were overridden
-  var attrs = ['autoplay','preload','loop','muted'];
-  for (var i = attrs.length - 1; i >= 0; i--) {
-    var attr = attrs[i];
-    if (player.options_[attr] !== null) {
-      el[attr] = player.options_[attr];
+  var settingsAttrs = ['autoplay','preload','loop','muted'];
+  for (i = settingsAttrs.length - 1; i >= 0; i--) {
+    var attr = settingsAttrs[i];
+    var overwriteAttrs = {};
+    if (typeof player.options_[attr] !== 'undefined') {
+      overwriteAttrs[attr] = player.options_[attr];
     }
+    vjs.setElementAttributes(el, overwriteAttrs);
   }
 
   return el;
   // jenniisawesome = true;
+};
+
+
+vjs.Html5.prototype.hideCaptions = function() {
+  var tracks = this.el_.querySelectorAll('track'),
+      track,
+      i = tracks.length,
+      kinds = {
+        'captions': 1,
+        'subtitles': 1
+      };
+
+  while (i--) {
+    track = tracks[i].track;
+    if ((track && track['kind'] in kinds) &&
+        (!tracks[i]['default'])) {
+      track.mode = 'disabled';
+    }
+  }
 };
 
 // Make video events trigger player events
@@ -113,14 +189,16 @@ vjs.Html5.prototype.createEl = function(){
 // Triggers removed using this.off when disposed
 vjs.Html5.prototype.setupTriggers = function(){
   for (var i = vjs.Html5.Events.length - 1; i >= 0; i--) {
-    vjs.on(this.el_, vjs.Html5.Events[i], vjs.bind(this, this.eventHandler));
+    this.on(vjs.Html5.Events[i], this.eventHandler);
   }
 };
 
 vjs.Html5.prototype.eventHandler = function(evt){
-  // In the case of an error, set the error prop on the player
-  // and let the player handle triggering the event.
-  if (evt.type == 'error') {
+  // In the case of an error on the video element, set the error prop
+  // on the player and let the player handle triggering the event. On
+  // some platforms, error events fire that do not cause the error
+  // property on the video element to be set. See #1465 for an example.
+  if (evt.type == 'error' && this.error()) {
     this.player().error(this.error().code);
 
   // in some cases we pass the event directly to the player
@@ -202,6 +280,20 @@ vjs.Html5.prototype.supportsFullScreen = function(){
 
 vjs.Html5.prototype.enterFullScreen = function(){
   var video = this.el_;
+
+  if ('webkitDisplayingFullscreen' in video) {
+    this.one('webkitbeginfullscreen', function() {
+      this.player_.isFullscreen(true);
+
+      this.one('webkitendfullscreen', function() {
+        this.player_.isFullscreen(false);
+        this.player_.trigger('fullscreenchange');
+      });
+
+      this.player_.trigger('fullscreenchange');
+    });
+  }
+
   if (video.paused && video.networkState <= video.HAVE_METADATA) {
     // attempt to prime the video element for programmatic access
     // this isn't necessary on the desktop but shouldn't hurt
@@ -209,7 +301,7 @@ vjs.Html5.prototype.enterFullScreen = function(){
 
     // playing and pausing synchronously during the transition to fullscreen
     // can get iOS ~6.1 devices into a play/pause loop
-    setTimeout(function(){
+    this.setTimeout(function(){
       video.pause();
       video.webkitEnterFullScreen();
     }, 0);
@@ -217,10 +309,25 @@ vjs.Html5.prototype.enterFullScreen = function(){
     video.webkitEnterFullScreen();
   }
 };
+
 vjs.Html5.prototype.exitFullScreen = function(){
   this.el_.webkitExitFullScreen();
 };
-vjs.Html5.prototype.src = function(src){ this.el_.src = src; };
+
+
+vjs.Html5.prototype.src = function(src) {
+  if (src === undefined) {
+    return this.el_.src;
+  } else {
+    // Setting src through `src` instead of `setSrc` will be deprecated
+    this.setSrc(src);
+  }
+};
+
+vjs.Html5.prototype.setSrc = function(src) {
+  this.el_.src = src;
+};
+
 vjs.Html5.prototype.load = function(){ this.el_.load(); };
 vjs.Html5.prototype.currentSrc = function(){ return this.el_.currentSrc; };
 
@@ -247,10 +354,103 @@ vjs.Html5.prototype.defaultMuted = function(){ return this.el_.defaultMuted; };
 vjs.Html5.prototype.playbackRate = function(){ return this.el_.playbackRate; };
 vjs.Html5.prototype.setPlaybackRate = function(val){ this.el_.playbackRate = val; };
 
+vjs.Html5.prototype.networkState = function(){ return this.el_.networkState; };
+vjs.Html5.prototype.readyState = function(){ return this.el_.readyState; };
+
+vjs.Html5.prototype.textTracks = function() {
+  if (!this['featuresNativeTextTracks']) {
+    return vjs.MediaTechController.prototype.textTracks.call(this);
+  }
+
+  return this.el_.textTracks;
+};
+vjs.Html5.prototype.addTextTrack = function(kind, label, language) {
+  if (!this['featuresNativeTextTracks']) {
+    return vjs.MediaTechController.prototype.addTextTrack.call(this, kind, label, language);
+  }
+
+  return this.el_.addTextTrack(kind, label, language);
+};
+
+vjs.Html5.prototype.addRemoteTextTrack = function(options) {
+  if (!this['featuresNativeTextTracks']) {
+    return vjs.MediaTechController.prototype.addRemoteTextTrack.call(this, options);
+  }
+
+  var track = document.createElement('track');
+  options = options || {};
+
+  if (options['kind']) {
+    track['kind'] = options['kind'];
+  }
+  if (options['label']) {
+    track['label'] = options['label'];
+  }
+  if (options['language'] || options['srclang']) {
+    track['srclang'] = options['language'] || options['srclang'];
+  }
+  if (options['default']) {
+    track['default'] = options['default'];
+  }
+  if (options['id']) {
+    track['id'] = options['id'];
+  }
+  if (options['src']) {
+    track['src'] = options['src'];
+  }
+
+  this.el().appendChild(track);
+
+  if (track.track['kind'] === 'metadata') {
+    track['track']['mode'] = 'hidden';
+  } else {
+    track['track']['mode'] = 'disabled';
+  }
+
+  track['onload'] = function() {
+    var tt = track['track'];
+    if (track.readyState >= 2) {
+      if (tt['kind'] === 'metadata' && tt['mode'] !== 'hidden') {
+        tt['mode'] = 'hidden';
+      } else if (tt['kind'] !== 'metadata' && tt['mode'] !== 'disabled') {
+        tt['mode'] = 'disabled';
+      }
+      track['onload'] = null;
+    }
+  };
+
+  this.remoteTextTracks().addTrack_(track.track);
+
+  return track;
+};
+
+vjs.Html5.prototype.removeRemoteTextTrack = function(track) {
+  if (!this['featuresNativeTextTracks']) {
+    return vjs.MediaTechController.prototype.removeRemoteTextTrack.call(this, track);
+  }
+
+  var tracks, i;
+
+  this.remoteTextTracks().removeTrack_(track);
+
+  tracks = this.el()['querySelectorAll']('track');
+
+  for (i = 0; i < tracks.length; i++) {
+    if (tracks[i] === track || tracks[i]['track'] === track) {
+      tracks[i]['parentNode']['removeChild'](tracks[i]);
+      break;
+    }
+  }
+};
+
 /* HTML5 Support Testing ---------------------------------------------------- */
 
+/**
+ * Check if HTML5 video is supported by this browser/device
+ * @return {Boolean}
+ */
 vjs.Html5.isSupported = function(){
-  // ie9 with no Media Player is a LIAR! (#984)
+  // IE9 with no Media Player is a LIAR! (#984)
   try {
     vjs.TEST_VID['volume'] = 0.5;
   } catch (e) {
@@ -260,30 +460,151 @@ vjs.Html5.isSupported = function(){
   return !!vjs.TEST_VID.canPlayType;
 };
 
-vjs.Html5.canPlaySource = function(srcObj){
-  // IE9 on Windows 7 without MediaPlayer throws an error here
-  // https://github.com/videojs/video.js/issues/519
-  try {
-    return !!vjs.TEST_VID.canPlayType(srcObj.type);
-  } catch(e) {
-    return '';
+// Add Source Handler pattern functions to this tech
+vjs.MediaTechController.withSourceHandlers(vjs.Html5);
+
+/**
+ * The default native source handler.
+ * This simply passes the source to the video element. Nothing fancy.
+ * @param  {Object} source   The source object
+ * @param  {vjs.Html5} tech  The instance of the HTML5 tech
+ */
+vjs.Html5.nativeSourceHandler = {};
+
+/**
+ * Check if the video element can handle the source natively
+ * @param  {Object} source  The source object
+ * @return {String}         'probably', 'maybe', or '' (empty string)
+ */
+vjs.Html5.nativeSourceHandler.canHandleSource = function(source){
+  var match, ext;
+
+  function canPlayType(type){
+    // IE9 on Windows 7 without MediaPlayer throws an error here
+    // https://github.com/videojs/video.js/issues/519
+    try {
+      return vjs.TEST_VID.canPlayType(type);
+    } catch(e) {
+      return '';
+    }
   }
-  // TODO: Check Type
-  // If no Type, check ext
-  // Check Media Type
+
+  // If a type was provided we should rely on that
+  if (source.type) {
+    return canPlayType(source.type);
+  } else if (source.src) {
+    // If no type, fall back to checking 'video/[EXTENSION]'
+    match = source.src.match(/\.([^.\/\?]+)(\?[^\/]+)?$/i);
+    ext = match && match[1];
+
+    return canPlayType('video/'+ext);
+  }
+
+  return '';
 };
 
+/**
+ * Pass the source to the video element
+ * Adaptive source handlers will have more complicated workflows before passing
+ * video data to the video element
+ * @param  {Object} source    The source object
+ * @param  {vjs.Html5} tech   The instance of the Html5 tech
+ */
+vjs.Html5.nativeSourceHandler.handleSource = function(source, tech){
+  tech.setSrc(source.src);
+};
+
+/**
+ * Clean up the source handler when disposing the player or switching sources..
+ * (no cleanup is needed when supporting the format natively)
+ */
+vjs.Html5.nativeSourceHandler.dispose = function(){};
+
+// Register the native source handler
+vjs.Html5.registerSourceHandler(vjs.Html5.nativeSourceHandler);
+
+/**
+ * Check if the volume can be changed in this browser/device.
+ * Volume cannot be changed in a lot of mobile devices.
+ * Specifically, it can't be changed from 1 on iOS.
+ * @return {Boolean}
+ */
 vjs.Html5.canControlVolume = function(){
   var volume =  vjs.TEST_VID.volume;
   vjs.TEST_VID.volume = (volume / 2) + 0.1;
   return volume !== vjs.TEST_VID.volume;
 };
 
+/**
+ * Check if playbackRate is supported in this browser/device.
+ * @return {[type]} [description]
+ */
 vjs.Html5.canControlPlaybackRate = function(){
   var playbackRate =  vjs.TEST_VID.playbackRate;
   vjs.TEST_VID.playbackRate = (playbackRate / 2) + 0.1;
   return playbackRate !== vjs.TEST_VID.playbackRate;
 };
+
+/**
+ * Check to see if native text tracks are supported by this browser/device
+ * @return {Boolean}
+ */
+vjs.Html5.supportsNativeTextTracks = function() {
+  var supportsTextTracks;
+
+  // Figure out native text track support
+  // If mode is a number, we cannot change it because it'll disappear from view.
+  // Browsers with numeric modes include IE10 and older (<=2013) samsung android models.
+  // Firefox isn't playing nice either with modifying the mode
+  // TODO: Investigate firefox: https://github.com/videojs/video.js/issues/1862
+  supportsTextTracks = !!vjs.TEST_VID.textTracks;
+  if (supportsTextTracks && vjs.TEST_VID.textTracks.length > 0) {
+    supportsTextTracks = typeof vjs.TEST_VID.textTracks[0]['mode'] !== 'number';
+  }
+  if (supportsTextTracks && vjs.IS_FIREFOX) {
+    supportsTextTracks = false;
+  }
+
+  return supportsTextTracks;
+};
+
+/**
+ * Set the tech's volume control support status
+ * @type {Boolean}
+ */
+vjs.Html5.prototype['featuresVolumeControl'] = vjs.Html5.canControlVolume();
+
+/**
+ * Set the tech's playbackRate support status
+ * @type {Boolean}
+ */
+vjs.Html5.prototype['featuresPlaybackRate'] = vjs.Html5.canControlPlaybackRate();
+
+/**
+ * Set the tech's status on moving the video element.
+ * In iOS, if you move a video element in the DOM, it breaks video playback.
+ * @type {Boolean}
+ */
+vjs.Html5.prototype['movingMediaElementInDOM'] = !vjs.IS_IOS;
+
+/**
+ * Set the the tech's fullscreen resize support status.
+ * HTML video is able to automatically resize when going to fullscreen.
+ * (No longer appears to be used. Can probably be removed.)
+ */
+vjs.Html5.prototype['featuresFullscreenResize'] = true;
+
+/**
+ * Set the tech's progress event support status
+ * (this disables the manual progress events of the MediaTechController)
+ */
+vjs.Html5.prototype['featuresProgressEvents'] = true;
+
+/**
+ * Sets the tech's status on native text track support
+ * @type {Boolean}
+ */
+vjs.Html5.prototype['featuresNativeTextTracks'] = vjs.Html5.supportsNativeTextTracks();
 
 // HTML5 Feature detection and Device Fixes --------------------------------- //
 (function() {

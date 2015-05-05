@@ -8,29 +8,29 @@ var hasOwnProp = Object.prototype.hasOwnProperty;
  * @private
  */
 vjs.createEl = function(tagName, properties){
-  var el, propName;
+  var el;
 
-  el = document.createElement(tagName || 'div');
+  tagName = tagName || 'div';
+  properties = properties || {};
 
-  for (propName in properties){
-    if (hasOwnProp.call(properties, propName)) {
-      //el[propName] = properties[propName];
-      // Not remembering why we were checking for dash
-      // but using setAttribute means you have to use getAttribute
+  el = document.createElement(tagName);
 
-      // The check for dash checks for the aria-* attributes, like aria-label, aria-valuemin.
-      // The additional check for "role" is because the default method for adding attributes does not
-      // add the attribute "role". My guess is because it's not a valid attribute in some namespaces, although
-      // browsers handle the attribute just fine. The W3C allows for aria-* attributes to be used in pre-HTML5 docs.
-      // http://www.w3.org/TR/wai-aria-primer/#ariahtml. Using setAttribute gets around this problem.
+  vjs.obj.each(properties, function(propName, val){
+    // Not remembering why we were checking for dash
+    // but using setAttribute means you have to use getAttribute
 
-       if (propName.indexOf('aria-') !== -1 || propName=='role') {
-         el.setAttribute(propName, properties[propName]);
-       } else {
-         el[propName] = properties[propName];
-       }
+    // The check for dash checks for the aria-* attributes, like aria-label, aria-valuemin.
+    // The additional check for "role" is because the default method for adding attributes does not
+    // add the attribute "role". My guess is because it's not a valid attribute in some namespaces, although
+    // browsers handle the attribute just fine. The W3C allows for aria-* attributes to be used in pre-HTML5 docs.
+    // http://www.w3.org/TR/wai-aria-primer/#ariahtml. Using setAttribute gets around this problem.
+    if (propName.indexOf('aria-') !== -1 || propName == 'role') {
+     el.setAttribute(propName, val);
+    } else {
+     el[propName] = val;
     }
-  }
+  });
+
   return el;
 };
 
@@ -117,7 +117,7 @@ vjs.obj.merge = function(obj1, obj2){
 vjs.obj.deepMerge = function(obj1, obj2){
   var key, val1, val2;
 
-  // make a copy of obj1 so we're not ovewriting original values.
+  // make a copy of obj1 so we're not overwriting original values.
   // like prototype.options_ and all sub options objects
   obj1 = vjs.obj.copy(obj1);
 
@@ -161,6 +161,28 @@ vjs.obj.isPlain = function(obj){
 };
 
 /**
+ * Check if an object is Array
+*  Since instanceof Array will not work on arrays created in another frame we need to use Array.isArray, but since IE8 does not support Array.isArray we need this shim
+ * @param  {Object} obj Object to check
+ * @return {Boolean}     True if plain, false otherwise
+ * @private
+ */
+vjs.obj.isArray = Array.isArray || function(arr) {
+  return Object.prototype.toString.call(arr) === '[object Array]';
+};
+
+/**
+ * Check to see whether the input is NaN or not.
+ * NaN is the only JavaScript construct that isn't equal to itself
+ * @param {Number} num Number to check
+ * @return {Boolean} True if NaN, false otherwise
+ * @private
+ */
+vjs.isNaN = function(num) {
+  return num !== num;
+};
+
+/**
  * Bind (a.k.a proxy or Context). A simple method for changing the context of a function
    It also stores a unique id on the function so it can be easily removed from events
  * @param  {*}   context The object to bind as scope
@@ -191,7 +213,7 @@ vjs.bind = function(context, fn, uid) {
 
 /**
  * Element Data Store. Allows for binding data to an element without putting it directly on the element.
- * Ex. Event listneres are stored here.
+ * Ex. Event listeners are stored here.
  * (also from jsninja.com, slightly modified and updated for closure compiler)
  * @type {Object}
  * @private
@@ -223,6 +245,8 @@ vjs.getData = function(el){
   var id = el[vjs.expando];
   if (!id) {
     id = el[vjs.expando] = vjs.guid++;
+  }
+  if (!vjs.cache[id]) {
     vjs.cache[id] = {};
   }
   return vjs.cache[id];
@@ -283,13 +307,24 @@ vjs.isEmpty = function(obj) {
 };
 
 /**
+ * Check if an element has a CSS class
+ * @param {Element} element Element to check
+ * @param {String} classToCheck Classname to check
+ * @private
+ */
+vjs.hasClass = function(element, classToCheck){
+  return ((' ' + element.className + ' ').indexOf(' ' + classToCheck + ' ') !== -1);
+};
+
+
+/**
  * Add a CSS class name to an element
  * @param {Element} element    Element to add class name to
  * @param {String} classToAdd Classname to add
  * @private
  */
 vjs.addClass = function(element, classToAdd){
-  if ((' '+element.className+' ').indexOf(' '+classToAdd+' ') == -1) {
+  if (!vjs.hasClass(element, classToAdd)) {
     element.className = element.className === '' ? classToAdd : element.className + ' ' + classToAdd;
   }
 };
@@ -303,7 +338,7 @@ vjs.addClass = function(element, classToAdd){
 vjs.removeClass = function(element, classToRemove){
   var classNames, i;
 
-  if (element.className.indexOf(classToRemove) == -1) { return; }
+  if (!vjs.hasClass(element, classToRemove)) {return;}
 
   classNames = element.className.split(' ');
 
@@ -324,6 +359,13 @@ vjs.removeClass = function(element, classToRemove){
  * @private
  */
 vjs.TEST_VID = vjs.createEl('video');
+(function() {
+  var track = document.createElement('track');
+  track.kind = 'captions';
+  track.srclang = 'en';
+  track.label = 'English';
+  vjs.TEST_VID.appendChild(track);
+})();
 
 /**
  * Useragent for browser testing.
@@ -377,19 +419,37 @@ vjs.IS_OLD_ANDROID = vjs.IS_ANDROID && (/webkit/i).test(vjs.USER_AGENT) && vjs.A
 
 vjs.IS_FIREFOX = (/Firefox/i).test(vjs.USER_AGENT);
 vjs.IS_CHROME = (/Chrome/i).test(vjs.USER_AGENT);
+vjs.IS_IE8 = (/MSIE\s8\.0/).test(vjs.USER_AGENT);
 
 vjs.TOUCH_ENABLED = !!(('ontouchstart' in window) || window.DocumentTouch && document instanceof window.DocumentTouch);
+vjs.BACKGROUND_SIZE_SUPPORTED = 'backgroundSize' in vjs.TEST_VID.style;
+
+/**
+ * Apply attributes to an HTML element.
+ * @param  {Element} el         Target element.
+ * @param  {Object=} attributes Element attributes to be applied.
+ * @private
+ */
+vjs.setElementAttributes = function(el, attributes){
+  vjs.obj.each(attributes, function(attrName, attrValue) {
+    if (attrValue === null || typeof attrValue === 'undefined' || attrValue === false) {
+      el.removeAttribute(attrName);
+    } else {
+      el.setAttribute(attrName, (attrValue === true ? '' : attrValue));
+    }
+  });
+};
 
 /**
  * Get an element's attribute values, as defined on the HTML tag
- * Attributs are not the same as properties. They're defined on the tag
+ * Attributes are not the same as properties. They're defined on the tag
  * or with setAttribute (which shouldn't be used with HTML)
  * This will return true or false for boolean attributes.
  * @param  {Element} tag Element from which to get tag attributes
  * @return {Object}
  * @private
  */
-vjs.getAttributeValues = function(tag){
+vjs.getElementAttributes = function(tag){
   var obj, knownBooleans, attrs, attrName, attrVal;
 
   obj = {};
@@ -565,87 +625,7 @@ vjs.createTimeRange = function(start, end){
 };
 
 /**
- * Simple http request for retrieving external files (e.g. text tracks)
- * @param  {String}    url             URL of resource
- * @param  {Function} onSuccess       Success callback
- * @param  {Function=} onError         Error callback
- * @param  {Boolean=}   withCredentials Flag which allow credentials
- * @private
- */
-vjs.get = function(url, onSuccess, onError, withCredentials){
-  var fileUrl, request, urlInfo, winLoc, crossOrigin;
-
-  onError = onError || function(){};
-
-  if (typeof XMLHttpRequest === 'undefined') {
-    // Shim XMLHttpRequest for older IEs
-    window.XMLHttpRequest = function () {
-      try { return new window.ActiveXObject('Msxml2.XMLHTTP.6.0'); } catch (e) {}
-      try { return new window.ActiveXObject('Msxml2.XMLHTTP.3.0'); } catch (f) {}
-      try { return new window.ActiveXObject('Msxml2.XMLHTTP'); } catch (g) {}
-      throw new Error('This browser does not support XMLHttpRequest.');
-    };
-  }
-
-  request = new XMLHttpRequest();
-
-  urlInfo = vjs.parseUrl(url);
-  winLoc = window.location;
-  // check if url is for another domain/origin
-  // ie8 doesn't know location.origin, so we won't rely on it here
-  crossOrigin = (urlInfo.protocol + urlInfo.host) !== (winLoc.protocol + winLoc.host);
-
-  // Use XDomainRequest for IE if XMLHTTPRequest2 isn't available
-  // 'withCredentials' is only available in XMLHTTPRequest2
-  // Also XDomainRequest has a lot of gotchas, so only use if cross domain
-  if(crossOrigin && window.XDomainRequest && !('withCredentials' in request)) {
-    request = new window.XDomainRequest();
-    request.onload = function() {
-      onSuccess(request.responseText);
-    };
-    request.onerror = onError;
-    // these blank handlers need to be set to fix ie9 http://cypressnorth.com/programming/internet-explorer-aborting-ajax-requests-fixed/
-    request.onprogress = function() {};
-    request.ontimeout = onError;
-
-  // XMLHTTPRequest
-  } else {
-    fileUrl = (urlInfo.protocol == 'file:' || winLoc.protocol == 'file:');
-
-    request.onreadystatechange = function() {
-      if (request.readyState === 4) {
-        if (request.status === 200 || fileUrl && request.status === 0) {
-          onSuccess(request.responseText);
-        } else {
-          onError(request.responseText);
-        }
-      }
-    };
-  }
-
-  // open the connection
-  try {
-    // Third arg is async, or ignored by XDomainRequest
-    request.open('GET', url, true);
-    // withCredentials only supported by XMLHttpRequest2
-    if(withCredentials) {
-      request.withCredentials = true;
-    }
-  } catch(e) {
-    onError(e);
-    return;
-  }
-
-  // send the request
-  try {
-    request.send();
-  } catch(e) {
-    onError(e);
-  }
-};
-
-/**
- * Add to local storage (may removeable)
+ * Add to local storage (may removable)
  * @private
  */
 vjs.setLocalStorage = function(key, value){
@@ -668,7 +648,7 @@ vjs.setLocalStorage = function(key, value){
 };
 
 /**
- * Get abosolute version of relative URL. Used to tell flash correct URL.
+ * Get absolute version of relative URL. Used to tell flash correct URL.
  * http://stackoverflow.com/questions/470832/getting-an-absolute-url-from-a-relative-one-ie6-issue
  * @param  {String} url URL to make absolute
  * @return {String}     Absolute URL
@@ -722,6 +702,15 @@ vjs.parseUrl = function(url) {
     details[props[i]] = a[props[i]];
   }
 
+  // IE9 adds the port to the host property unlike everyone else. If
+  // a port identifier is added for standard ports, strip it.
+  if (details.protocol === 'http:') {
+    details.host = details.host.replace(/:80$/, '');
+  }
+  if (details.protocol === 'https:') {
+    details.host = details.host.replace(/:443$/, '');
+  }
+
   if (addToBody) {
     document.body.removeChild(div);
   }
@@ -729,25 +718,28 @@ vjs.parseUrl = function(url) {
   return details;
 };
 
-// if there's no console then don't try to output messages
-// they will still be stored in vjs.log.history
-var _noop = function(){};
-var _console = window['console'] || {
-  'log': _noop,
-  'warn': _noop,
-  'error': _noop
-};
-
 /**
- * Log messags to the console and history based on the type of message
+ * Log messages to the console and history based on the type of message
  *
  * @param  {String} type The type of message, or `null` for `log`
  * @param  {[type]} args The args to be passed to the log
  * @private
  */
 function _logType(type, args){
+  var argsArray, noop, console;
+
   // convert args to an array to get array functions
-  var argsArray = Array.prototype.slice.call(args);
+  argsArray = Array.prototype.slice.call(args);
+  // if there's no console then don't try to output messages
+  // they will still be stored in vjs.log.history
+  // Was setting these once outside of this function, but containing them
+  // in the function makes it easier to test cases where console doesn't exist
+  noop = function(){};
+  console = window['console'] || {
+    'log': noop,
+    'warn': noop,
+    'error': noop
+  };
 
   if (type) {
     // add the type to the front of the message
@@ -764,11 +756,11 @@ function _logType(type, args){
   argsArray.unshift('VIDEOJS:');
 
   // call appropriate log function
-  if (_console[type].apply) {
-    _console[type].apply(_console, argsArray);
+  if (console[type].apply) {
+    console[type].apply(console, argsArray);
   } else {
     // ie8 doesn't allow error.apply, but it will just join() the array anyway
-    _console[type](argsArray.join(' '));
+    console[type](argsArray.join(' '));
   }
 }
 
@@ -831,4 +823,29 @@ vjs.findPosition = function(el) {
     left: vjs.round(left),
     top: vjs.round(top)
   };
+};
+
+/**
+ * Array functions container
+ * @type {Object}
+ * @private
+ */
+vjs.arr = {};
+
+/*
+ * Loops through an array and runs a function for each item inside it.
+ * @param  {Array}    array       The array
+ * @param  {Function} callback    The function to be run for each item
+ * @param  {*}        thisArg     The `this` binding of callback
+ * @returns {Array}               The array
+ * @private
+ */
+vjs.arr.forEach = function(array, callback, thisArg) {
+  if (vjs.obj.isArray(array) && callback instanceof Function) {
+    for (var i = 0, len = array.length; i < len; ++i) {
+      callback.call(thisArg || vjs, array[i], i, array);
+    }
+  }
+
+  return array;
 };

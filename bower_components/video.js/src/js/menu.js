@@ -64,7 +64,7 @@ vjs.MenuItem = vjs.Button.extend({
 vjs.MenuItem.prototype.createEl = function(type, props){
   return vjs.Button.prototype.createEl.call(this, 'li', vjs.obj.merge({
     className: 'vjs-menu-item',
-    innerHTML: this.options_['label']
+    innerHTML: this.localize(this.options_['label'])
   }, props));
 };
 
@@ -101,21 +101,30 @@ vjs.MenuButton = vjs.Button.extend({
   init: function(player, options){
     vjs.Button.call(this, player, options);
 
-    this.menu = this.createMenu();
+    this.update();
 
-    // Add list to element
-    this.addChild(this.menu);
-
-    // Automatically hide empty menu buttons
-    if (this.items && this.items.length === 0) {
-      this.hide();
-    }
-
-    this.on('keyup', this.onKeyPress);
+    this.on('keydown', this.onKeyPress);
     this.el_.setAttribute('aria-haspopup', true);
     this.el_.setAttribute('role', 'button');
   }
 });
+
+vjs.MenuButton.prototype.update = function() {
+  var menu = this.createMenu();
+
+  if (this.menu) {
+    this.removeChild(this.menu);
+  }
+
+  this.menu = menu;
+  this.addChild(menu);
+
+  if (this.items && this.items.length === 0) {
+    this.hide();
+  } else if (this.items && this.items.length > 1) {
+    this.show();
+  }
+};
 
 /**
  * Track the state of the menu button
@@ -182,7 +191,6 @@ vjs.MenuButton.prototype.onClick = function(){
 };
 
 vjs.MenuButton.prototype.onKeyPress = function(event){
-  event.preventDefault();
 
   // Check for space bar (32) or enter (13) keys
   if (event.which == 32 || event.which == 13) {
@@ -191,11 +199,13 @@ vjs.MenuButton.prototype.onKeyPress = function(event){
     } else {
       this.pressButton();
     }
+    event.preventDefault();
   // Check for escape (27) key
   } else if (event.which == 27){
     if (this.buttonPressed_){
       this.unpressButton();
     }
+    event.preventDefault();
   }
 };
 
@@ -213,4 +223,3 @@ vjs.MenuButton.prototype.unpressButton = function(){
   this.menu.unlockShowing();
   this.el_.setAttribute('aria-pressed', false);
 };
-
